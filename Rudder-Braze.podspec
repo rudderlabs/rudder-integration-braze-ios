@@ -10,9 +10,14 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   s.homepage         = 'https://github.com/rudderlabs/rudder-integration-braze-ios'
   s.license          = { :type => "Apache", :file => "LICENSE" }
   s.author           = { 'RudderStack' => 'raj@rudderlabs.com' }
-  s.source           = { :git => 'https://github.com/rudderlabs/rudder-integration-braze-ios.git', :commit => '378d4c6f0a8b00df6291563a19e3b213a4ac06d4' }
+  s.source           = { :git => 'https://github.com/rudderlabs/rudder-integration-braze-ios.git', :commit => '6af5c84b2c76bfe1f347dd3250572b0391331f38' }
   s.platform         = :ios, "9.0"
+  s.pod_target_xcconfig = {
+    'OTHER_LDFLAGS' => '-ObjC',
 
+    # Skipping this architecture to pass Pod validation since we explicitly remove simulator `arm64` ARCH to do lipo later
+    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  }
   s.source_files = 'Rudder-Braze/Classes/**/*'
 
   s.dependency 'Rudder'
