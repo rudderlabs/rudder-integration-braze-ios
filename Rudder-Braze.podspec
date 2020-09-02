@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'Rudder-Braze'
-  s.version          = '1.0.0-beta.1'
+  s.version          = '1.0.0-beta.2'
   s.summary          = 'Privacy and Security focused Segment-alternative. Braze Native SDK integration support.'
 
   s.description      = <<-DESC
@@ -16,5 +16,5 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   s.source_files = 'Rudder-Braze/Classes/**/*'
 
   s.dependency 'Rudder'
-  s.dependency 'Appboy-iOS-SDK', '3.27.0-beta1'
+  s.dependency 'Appboy-iOS-SDK', '3.27.0-beta2'
 end
