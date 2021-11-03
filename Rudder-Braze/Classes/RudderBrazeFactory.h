@@ -5,7 +5,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <Rudder/Rudder.h>
+@import Rudder;
 #import "RudderBrazeIntegration.h"
 NS_ASSUME_NONNULL_BEGIN
 

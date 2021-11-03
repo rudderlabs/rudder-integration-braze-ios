@@ -40,3 +40,8 @@ Carthage/Build
 #
 Pods/
 Podfile.lock
+
+# Swift Package Manager
+.swiftpm
+Package.resolved
+
