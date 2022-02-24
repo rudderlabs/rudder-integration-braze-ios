@@ -11,7 +11,7 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 2. Rudder-Braze is available through [CocoaPods](https://cocoapods.org). To install it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'Rudder-Braze', '1.0.3'
+pod 'Rudder-Braze', '1.0.4'
 ```
 
 ## Initialize ```RSClient```
