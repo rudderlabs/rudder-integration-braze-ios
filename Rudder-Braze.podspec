@@ -1,3 +1,6 @@
+
+appboy_sdk_version = '4.4.2'
+
 Pod::Spec.new do |s|
   s.name             = 'Rudder-Braze'
   s.version          = '1.0.3'
@@ -22,5 +25,13 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   s.source_files = 'Rudder-Braze/Classes/**/*'
 
   s.dependency 'Rudder', '~> 1.0'
-  s.dependency 'Appboy-iOS-SDK', '4.4.2'
+
+  if defined?($AppboySDKVersion)
+    Pod::UI.puts "#{s.name}: Using user specified Appboy SDK version '#{$AppboySDKVersion}'"
+    appboy_sdk_version = $AppboySDKVersion
+  else
+    Pod::UI.puts "#{s.name}: Using default Appboy SDK version '#{appboy_sdk_version}'"
+  end
+
+  s.dependency 'Appboy-iOS-SDK', appboy_sdk_version
 end
