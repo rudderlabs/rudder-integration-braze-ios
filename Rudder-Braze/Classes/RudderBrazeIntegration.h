@@ -23,6 +23,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) NSDictionary *config;
 @property (nonatomic, strong) RSClient *client;
+@property (nonatomic) BOOL *supportDedup;
+@property (nonatomic, strong) RSMessage *previousIdentifyElement;
 
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig ;
 

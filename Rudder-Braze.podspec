@@ -17,10 +17,10 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   s.platform         = :ios, "9.0"
 
   ## Ref: https://github.com/CocoaPods/CocoaPods/issues/10065
-  s.pod_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  }
-  s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
+  ## s.pod_target_xcconfig = {
+  ##   'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
+  ## }
+  ## s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   s.source_files = 'Rudder-Braze/Classes/**/*'
 

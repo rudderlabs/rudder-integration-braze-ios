@@ -15,7 +15,7 @@
     if (self = [super init]) {
         self.config = config;
         self.client = client;
-                
+        self.supportDedup = [config objectForKey:@"supportDedup"] ? YES : NO;
         NSString *apiToken = [config objectForKey:@"appKey"];
         if ( [apiToken length] == 0) {
           return nil;
@@ -71,6 +71,19 @@
     }
 }
 
+- (NSString *) getExternalId: (RSMessage *) message {
+    NSArray* externalIds = message.context.externalIds;
+    NSString *externalId = nil;
+    for (NSDictionary* externalIdDict in externalIds) {
+        NSString *typeKey = externalIdDict[@"type"];
+        if (typeKey && [typeKey isEqualToString:RSBrazeExternalIdKey]) {
+            externalId = externalIdDict[@"id"];
+            break;
+        }
+    }
+    return externalId;
+}
+
 - (void)dump:(nonnull RSMessage *)message {
     if([message.type isEqualToString:@"identify"]) {
         if (![NSThread isMainThread]) {
@@ -81,75 +94,103 @@
         }
         
         if ([message.context.traits[@"lastname"] isKindOfClass:[NSString class]]) {
-            [Appboy sharedInstance].user.lastName = (NSString *) message.context.traits[@"lastname"];
-            [RSLogger logInfo:@"Identify: Braze user lastname"];
-        }
-        
-        // look for externalIds first
-        NSArray* externalIds = message.context.externalIds;
-        NSString *externalId = nil;
-        for (NSDictionary* externalIdDict in externalIds) {
-            NSString *typeKey = externalIdDict[@"type"];
-            if (typeKey && [typeKey isEqualToString:RSBrazeExternalIdKey]) {
-                externalId = externalIdDict[@"id"];
-                break;
+            NSString *lastName = [self needUpdate:@"lastname" withMessage:message];
+            if (lastName != nil) {
+                [Appboy sharedInstance].user.lastName = lastName;
+                [RSLogger logInfo:@"Identify: Braze user lastname"];
             }
         }
         
-        if (externalId && [externalId length] != 0) {
-            [[Appboy sharedInstance] changeUser:externalId];
+        // look for externalIds first
+        NSString *prevExternalId = [self getExternalId:self.previousIdentifyElement];
+        NSString *currExternalId = [self getExternalId:message];
+        
+        NSString *prevUserId = self.previousIdentifyElement.userId;
+        NSString *currUserId = message.userId;
+        
+        if ((prevExternalId == nil && currExternalId != nil) || (![currExternalId isEqual:prevExternalId])) {
+            [[Appboy sharedInstance] changeUser:currExternalId];
             [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
-        } else if (message.userId != nil && [message.userId length] != 0) {
-            [[Appboy sharedInstance] changeUser:message.userId];
+        } else if ((prevUserId == nil && currUserId != nil) || (![currUserId isEqual:prevUserId])) {
+            [[Appboy sharedInstance] changeUser:currUserId];
             [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
         }
         
+//        if (externalId && [externalId length] != 0) {
+//            [[Appboy sharedInstance] changeUser:externalId];
+//            [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
+//        } else if (message.userId != nil && [message.userId length] != 0) {
+//            [[Appboy sharedInstance] changeUser:message.userId];
+//            [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
+//        }
+        
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
-          [Appboy sharedInstance].user.email = (NSString *)message.context.traits[@"email"];
-          [RSLogger logInfo:@"Identify: Braze email"];
+            NSString *email = [self needUpdate:@"email" withMessage:message];
+            if (email != nil) {
+                [Appboy sharedInstance].user.email = email;
+                //          [Appboy sharedInstance].user.email = (NSString *)message.context.traits[@"email"];
+                [RSLogger logInfo:@"Identify: Braze email"];
+            }
         }
         
         if ([message.context.traits[@"firstName"] isKindOfClass:[NSString class]]) {
-          [Appboy sharedInstance].user.firstName = (NSString *)message.context.traits[@"firstname"];
-          [RSLogger logInfo: @"Identify: Braze  firstname"];
+            NSString *firstName = [self needUpdate:@"firstname" withMessage:message];
+            if (firstName != nil) {
+                [Appboy sharedInstance].user.firstName = firstName;
+                //          [Appboy sharedInstance].user.firstName = (NSString *)message.context.traits[@"firstname"];
+                [RSLogger logInfo: @"Identify: Braze firstname"];
+            }
         }
         
         if ([message.context.traits[@"birthday"] isKindOfClass:[NSString class]]) {
-          NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-          NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-          [dateFormatter setLocale:enUSPOSIXLocale];
-          [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
-          [Appboy sharedInstance].user.dateOfBirth = [dateFormatter dateFromString:(NSString *)message.context.traits[@"birthday"]];
-          [RSLogger logInfo: @"Identify: Braze  date of birth"];
+            NSString *birthday =[self needUpdate:@"birthday" withMessage:message];
+            if (birthday != nil) {
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+                [dateFormatter setLocale:enUSPOSIXLocale];
+                [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
+                [Appboy sharedInstance].user.dateOfBirth = [dateFormatter dateFromString:birthday];
+                //          [Appboy sharedInstance].user.dateOfBirth = [dateFormatter dateFromString:(NSString *)message.context.traits[@"birthday"]];
+                [RSLogger logInfo: @"Identify: Braze  date of birth"];
+            }
         }
          
         if ([message.context.traits[@"gender"] isKindOfClass:[NSString class]]) {
-          NSString *gender = (NSString *)message.context.traits [@"gender"];
-          if ([gender.lowercaseString isEqualToString:@"m"] || [gender.lowercaseString isEqualToString:@"male"]) {
-            [[Appboy sharedInstance].user setGender:ABKUserGenderMale];
-            [RSLogger logInfo:@"Identify: Braze  gender"];
-          } else if ([gender.lowercaseString isEqualToString:@"f"] || [gender.lowercaseString isEqualToString:@"female"]) {
-            [[Appboy sharedInstance].user setGender:ABKUserGenderFemale];
-            [RSLogger logInfo:@"Identify: Braze  gender"];
-          }
+//          NSString *gender = (NSString *)message.context.traits [@"gender"];
+            NSString *gender = [self needUpdate:@"gender" withMessage:message];
+            if (gender != nil) {
+                if ([gender.lowercaseString isEqualToString:@"m"] || [gender.lowercaseString isEqualToString:@"male"]) {
+                    [[Appboy sharedInstance].user setGender:ABKUserGenderMale];
+                    [RSLogger logInfo:@"Identify: Braze  gender"];
+                } else if ([gender.lowercaseString isEqualToString:@"f"] || [gender.lowercaseString isEqualToString:@"female"]) {
+                    [[Appboy sharedInstance].user setGender:ABKUserGenderFemale];
+                    [RSLogger logInfo:@"Identify: Braze  gender"];
+                }
+            }
         }
         
         if ([message.context.traits[@"phone"] isKindOfClass:[NSString class]]) {
-          [Appboy sharedInstance].user.phone = (NSString *)message.context.traits[@"phone"];
-          [RSLogger logInfo:@"Identify: Braze  phone"];
+            NSString *phone = [self needUpdate:@"phone" withMessage:message];
+            if (phone != nil) {
+                [Appboy sharedInstance].user.phone = phone;
+                [RSLogger logInfo:@"Identify: Braze  phone"];
+            }
         }
         
         if ([message.context.traits[@"address"] isKindOfClass:[NSDictionary class]]) {
-          NSDictionary *address = (NSDictionary *) message.context.traits[@"address"];
-          if ([address[@"city"] isKindOfClass:[NSString class]]) {
-            [Appboy sharedInstance].user.homeCity = address[@"city"];
-            [RSLogger logInfo:@"Identify: Braze  homecity"];
-          }
-          
-          if ([address[@"country"] isKindOfClass:[NSString class]]) {
-            [Appboy sharedInstance].user.country = address[@"country"];
-            [RSLogger logInfo:@"Identify: Braze  country"];
-          }
+            NSDictionary *address = [self needUpdate:@"address" withMessage:message];
+            //          NSDictionary *address = (NSDictionary *) message.context.traits[@"address"];
+            if (address != nil) {
+                if ([address[@"city"] isKindOfClass:[NSString class]]) {
+                    [Appboy sharedInstance].user.homeCity = address[@"city"];
+                    [RSLogger logInfo:@"Identify: Braze  homecity"];
+                }
+                
+                if ([address[@"country"] isKindOfClass:[NSString class]]) {
+                    [Appboy sharedInstance].user.country = address[@"country"];
+                    [RSLogger logInfo:@"Identify: Braze  country"];
+                }
+            }
         }
         
         NSArray *appboyTraits = @[@"birthday", @"anonymousId", @"gender", @"phone", @"address", @"firstname", @"lastname", @"email"  ];
@@ -157,36 +198,41 @@
             
         //ignore above traits and get others - free key value pairs
         for (NSString *key in message.context.traits.allKeys) {
-          if (![appboyTraits containsObject:key]) {
-            id traitValue = message.context.traits[key];
-            if ([traitValue isKindOfClass:[NSString class]]) {
-              [[Appboy sharedInstance].user setCustomAttributeWithKey:key andStringValue:traitValue];
-              [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andStringValue: "];
-            } else if ([traitValue isKindOfClass:[NSDate class]]) {
-              [[Appboy sharedInstance].user setCustomAttributeWithKey:key andDateValue:traitValue];
-              [RSLogger logInfo: @"Braze setCustomAttributeWithKey: andDateValue: "];
-            } else if ([traitValue isKindOfClass:[NSNumber class]]) {
-              if (strcmp([traitValue objCType], [@(YES) objCType]) == 0) {
-                [[Appboy sharedInstance].user setCustomAttributeWithKey:key andBOOLValue:[(NSNumber *)traitValue boolValue]];
-                [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andBOOLValue:"];
-              } else if (strcmp([traitValue objCType], @encode(short)) == 0 ||
-                         strcmp([traitValue objCType], @encode(int)) == 0 ||
-                         strcmp([traitValue objCType], @encode(long)) == 0) {
-                [[Appboy sharedInstance].user setCustomAttributeWithKey:key andIntegerValue:[(NSNumber *)traitValue integerValue]];
-                [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andIntegerValue:"];
-              } else if (strcmp([traitValue objCType], @encode(float)) == 0 ||
-                         strcmp([traitValue objCType], @encode(double)) == 0) {
-                [[Appboy sharedInstance].user setCustomAttributeWithKey:key andDoubleValue:[(NSNumber *)traitValue doubleValue]];
-                [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andDoubleValue:"];
-              } else {
-                [RSLogger logInfo:@"NSNumber could not be mapped to customAttribute"];
-              }
-            } else if ([traitValue isKindOfClass:[NSArray class]]) {
-              [[Appboy sharedInstance].user setCustomAttributeArrayWithKey:key array:traitValue];
-              [RSLogger logInfo:@"Braze setCustomAttributeArrayWithKey: array:"];
+            if (![appboyTraits containsObject:key]) {
+                id traitValue = [self needUpdate:key withMessage:message];
+                
+                //            id traitValue = [message.context.traits[key];
+                if (traitValue != nil) {
+                    if ([traitValue isKindOfClass:[NSString class]]) {
+                        [[Appboy sharedInstance].user setCustomAttributeWithKey:key andStringValue:traitValue];
+                        [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andStringValue: "];
+                    } else if ([traitValue isKindOfClass:[NSDate class]]) {
+                        [[Appboy sharedInstance].user setCustomAttributeWithKey:key andDateValue:traitValue];
+                        [RSLogger logInfo: @"Braze setCustomAttributeWithKey: andDateValue: "];
+                    } else if ([traitValue isKindOfClass:[NSNumber class]]) {
+                        if (strcmp([traitValue objCType], [@(YES) objCType]) == 0) {
+                            [[Appboy sharedInstance].user setCustomAttributeWithKey:key andBOOLValue:[(NSNumber *)traitValue boolValue]];
+                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andBOOLValue:"];
+                        } else if (strcmp([traitValue objCType], @encode(short)) == 0 ||
+                                   strcmp([traitValue objCType], @encode(int)) == 0 ||
+                                   strcmp([traitValue objCType], @encode(long)) == 0) {
+                            [[Appboy sharedInstance].user setCustomAttributeWithKey:key andIntegerValue:[(NSNumber *)traitValue integerValue]];
+                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andIntegerValue:"];
+                        } else if (strcmp([traitValue objCType], @encode(float)) == 0 ||
+                                   strcmp([traitValue objCType], @encode(double)) == 0) {
+                            [[Appboy sharedInstance].user setCustomAttributeWithKey:key andDoubleValue:[(NSNumber *)traitValue doubleValue]];
+                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andDoubleValue:"];
+                        } else {
+                            [RSLogger logInfo:@"NSNumber could not be mapped to customAttribute"];
+                        }
+                    } else if ([traitValue isKindOfClass:[NSArray class]]) {
+                        [[Appboy sharedInstance].user setCustomAttributeArrayWithKey:key array:traitValue];
+                        [RSLogger logInfo:@"Braze setCustomAttributeArrayWithKey: array:"];
+                    }
+                }
             }
-          }
         }
+        self.previousIdentifyElement = message;
     } else {
         if ([message.event isEqualToString:@"Install Attributed"]) {
           if ([message.properties[@"campaign"] isKindOfClass:[NSDictionary class]]) {
@@ -306,6 +352,62 @@
     return YES;
   }
   return NO;
+}
+
+- (BOOL) compareAddress: (NSDictionary *) curr withPrevAddress:(NSDictionary *)prev {
+    if (prev == nil || curr != nil) {
+        return YES;
+    }
+    
+    if (prev != nil && curr != nil) {
+        NSString *prevCity = [prev objectForKey:@"city"];
+        NSString *currCity = [prev objectForKey:@"city"];
+        
+        NSString *prevCountry = [prev objectForKey:@"country"];
+        NSString *currCountry = [prev objectForKey:@"country"];
+        
+        NSString *prevPostalCode = [prev objectForKey:@"zip"];
+        NSString *currPostalCode = [prev objectForKey:@"zip"];
+        
+        NSString *prevState = [prev objectForKey:@"state"];
+        NSString *currState = [prev objectForKey:@"state"];
+        
+        NSString *prevStreet = [prev objectForKey:@"street"];
+        NSString *currStreet = [prev objectForKey:@"street"];
+        
+        return
+        [prevCity isEqualToString:currCity] &&
+        [prevCountry isEqualToString:currCountry] &&
+        [prevPostalCode isEqualToString:currPostalCode] &&
+        [prevState isEqualToString:currState] &&
+        [prevStreet isEqualToString:currStreet];
+    }
+    return NO;
+}
+
+- (id) needUpdate: (NSString *) key withMessage:(RSMessage *) element {
+    id currValue = [element.traits objectForKey:key];
+    
+    if (self.supportDedup) {
+        id prevValue = [self.previousIdentifyElement.traits objectForKey:key];
+        
+        if ([key isEqualToString:@"address"]) {
+            NSDictionary *currAddress = [currValue objectForKey:@"address"];
+            NSDictionary *prevAddress = [prevValue objectForKey:@"address"];
+            
+            if ([self compareAddress:currAddress withPrevAddress:prevAddress]) {
+                return nil;
+            } else {
+                return currValue;
+            }
+        } else if (currValue != nil && [currValue isEqual:prevValue]) {
+            return nil;
+        } else {
+            return currValue;
+        }
+    }
+    
+    return currValue;
 }
 
 @end
