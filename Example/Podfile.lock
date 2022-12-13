@@ -1,0 +1,56 @@
+PODS:
+  - Appboy-iOS-SDK (4.4.2):
+    - Appboy-iOS-SDK/UI (= 4.4.2)
+  - Appboy-iOS-SDK/ContentCards (4.4.2):
+    - Appboy-iOS-SDK/Core
+    - SDWebImage (< 6, >= 5.8.2)
+  - Appboy-iOS-SDK/Core (4.4.2)
+  - Appboy-iOS-SDK/InAppMessage (4.4.2):
+    - Appboy-iOS-SDK/Core
+    - SDWebImage (< 6, >= 5.8.2)
+  - Appboy-iOS-SDK/NewsFeed (4.4.2):
+    - Appboy-iOS-SDK/Core
+    - SDWebImage (< 6, >= 5.8.2)
+  - Appboy-iOS-SDK/UI (4.4.2):
+    - Appboy-iOS-SDK/ContentCards
+    - Appboy-iOS-SDK/Core
+    - Appboy-iOS-SDK/InAppMessage
+    - Appboy-iOS-SDK/NewsFeed
+  - FBSnapshotTestCase (2.1.4):
+    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
+  - FBSnapshotTestCase/Core (2.1.4)
+  - FBSnapshotTestCase/SwiftSupport (2.1.4):
+    - FBSnapshotTestCase/Core
+  - Rudder (1.5.0)
+  - Rudder-Braze (1.0.1):
+    - Appboy-iOS-SDK (= 4.4.2)
+    - Rudder
+  - SDWebImage (5.12.3):
+    - SDWebImage/Core (= 5.12.3)
+  - SDWebImage/Core (5.12.3)
+
+DEPENDENCIES:
+  - FBSnapshotTestCase
+  - Rudder-Braze (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - Appboy-iOS-SDK
+    - FBSnapshotTestCase
+    - Rudder
+    - SDWebImage
+
+EXTERNAL SOURCES:
+  Rudder-Braze:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  Appboy-iOS-SDK: 4a7dfe908639da81e5e85849355f6066b58b4cc6
+  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
+  Rudder: 95d023a3a4ec1e8d6bd15963e84f78707b13d9c3
+  Rudder-Braze: 5d63a7abfd710a599f3aa3d28bced2adcf6ea4be
+  SDWebImage: 53179a2dba77246efa8a9b85f5c5b21f8f43e38f
+
+PODFILE CHECKSUM: 335b5036b840f5bbe75cfb5f2a5c30f8f247c9ef
+
+COCOAPODS: 1.11.2
