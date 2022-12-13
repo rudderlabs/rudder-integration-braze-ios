@@ -361,19 +361,19 @@
     
     if (prev != nil && curr != nil) {
         NSString *prevCity = [prev objectForKey:@"city"];
-        NSString *currCity = [prev objectForKey:@"city"];
+        NSString *currCity = [curr objectForKey:@"city"];
         
         NSString *prevCountry = [prev objectForKey:@"country"];
-        NSString *currCountry = [prev objectForKey:@"country"];
+        NSString *currCountry = [curr objectForKey:@"country"];
         
         NSString *prevPostalCode = [prev objectForKey:@"zip"];
-        NSString *currPostalCode = [prev objectForKey:@"zip"];
+        NSString *currPostalCode = [curr objectForKey:@"zip"];
         
         NSString *prevState = [prev objectForKey:@"state"];
-        NSString *currState = [prev objectForKey:@"state"];
+        NSString *currState = [curr objectForKey:@"state"];
         
         NSString *prevStreet = [prev objectForKey:@"street"];
-        NSString *currStreet = [prev objectForKey:@"street"];
+        NSString *currStreet = [curr objectForKey:@"street"];
         
         return
         [prevCity isEqualToString:currCity] &&
