@@ -47,6 +47,27 @@
             }
         }
         
+        // For more details on Braze log level -> https://www.braze.com/docs/developer_guide/platform_integration_guides/ios/initial_sdk_setup/other_sdk_customizations/#braze-log-level
+        switch (rudderConfig.logLevel) {
+            case 5: //RSLogLevelVerbose
+                appboyOptions[ABKLogLevelKey] = @0;
+                break;
+            case 4: //RSLogLevelDebug
+                appboyOptions[ABKLogLevelKey] = @1;
+                break;
+            case 2: //RSLogLevelWarning
+                appboyOptions[ABKLogLevelKey] = @2;
+                break;
+            case 1: //RSLogLevelError
+                appboyOptions[ABKLogLevelKey] = @4;
+                break;
+            case 3: //RSLogLevelInfo
+                appboyOptions[ABKLogLevelKey] = @8;
+                break;
+            default:
+                break;
+        }
+        
         if ([NSThread isMainThread]) {
             [Appboy startWithApiKey:apiToken
                       inApplication:[UIApplication sharedApplication]
@@ -115,48 +136,32 @@
             [[Appboy sharedInstance] changeUser:currUserId];
             [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
         }
-        
-//        if (externalId && [externalId length] != 0) {
-//            [[Appboy sharedInstance] changeUser:externalId];
-//            [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
-//        } else if (message.userId != nil && [message.userId length] != 0) {
-//            [[Appboy sharedInstance] changeUser:message.userId];
-//            [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
-//        }
-        
+                
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
             NSString *email = [self needUpdate:@"email" withMessage:message];
             if (email != nil) {
                 [Appboy sharedInstance].user.email = email;
-                //          [Appboy sharedInstance].user.email = (NSString *)message.context.traits[@"email"];
                 [RSLogger logInfo:@"Identify: Braze email"];
             }
         }
         
-        if ([message.context.traits[@"firstName"] isKindOfClass:[NSString class]]) {
+        if ([message.context.traits[@"firstname"] isKindOfClass:[NSString class]]) {
             NSString *firstName = [self needUpdate:@"firstname" withMessage:message];
             if (firstName != nil) {
                 [Appboy sharedInstance].user.firstName = firstName;
-                //          [Appboy sharedInstance].user.firstName = (NSString *)message.context.traits[@"firstname"];
                 [RSLogger logInfo: @"Identify: Braze firstname"];
             }
         }
         
-        if ([message.context.traits[@"birthday"] isKindOfClass:[NSString class]]) {
-            NSString *birthday =[self needUpdate:@"birthday" withMessage:message];
+        if ([message.context.traits[@"birthday"] isKindOfClass:[NSDate class]]) {
+            NSDate *birthday =[self needUpdate:@"birthday" withMessage:message];
             if (birthday != nil) {
-                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
-                [dateFormatter setLocale:enUSPOSIXLocale];
-                [dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZ"];
-                [Appboy sharedInstance].user.dateOfBirth = [dateFormatter dateFromString:birthday];
-                //          [Appboy sharedInstance].user.dateOfBirth = [dateFormatter dateFromString:(NSString *)message.context.traits[@"birthday"]];
+                [Appboy sharedInstance].user.dateOfBirth = birthday;
                 [RSLogger logInfo: @"Identify: Braze  date of birth"];
             }
         }
          
         if ([message.context.traits[@"gender"] isKindOfClass:[NSString class]]) {
-//          NSString *gender = (NSString *)message.context.traits [@"gender"];
             NSString *gender = [self needUpdate:@"gender" withMessage:message];
             if (gender != nil) {
                 if ([gender.lowercaseString isEqualToString:@"m"] || [gender.lowercaseString isEqualToString:@"male"]) {
@@ -179,7 +184,6 @@
         
         if ([message.context.traits[@"address"] isKindOfClass:[NSDictionary class]]) {
             NSDictionary *address = [self needUpdate:@"address" withMessage:message];
-            //          NSDictionary *address = (NSDictionary *) message.context.traits[@"address"];
             if (address != nil) {
                 if ([address[@"city"] isKindOfClass:[NSString class]]) {
                     [Appboy sharedInstance].user.homeCity = address[@"city"];
@@ -200,8 +204,6 @@
         for (NSString *key in message.context.traits.allKeys) {
             if (![appboyTraits containsObject:key]) {
                 id traitValue = [self needUpdate:key withMessage:message];
-                
-                //            id traitValue = [message.context.traits[key];
                 if (traitValue != nil) {
                     if ([traitValue isKindOfClass:[NSString class]]) {
                         [[Appboy sharedInstance].user setCustomAttributeWithKey:key andStringValue:traitValue];
@@ -355,10 +357,6 @@
 }
 
 - (BOOL) compareAddress: (NSDictionary *) curr withPrevAddress:(NSDictionary *)prev {
-    if (prev == nil || curr != nil) {
-        return YES;
-    }
-    
     if (prev != nil && curr != nil) {
         NSString *prevCity = [prev objectForKey:@"city"];
         NSString *currCity = [curr objectForKey:@"city"];
@@ -366,40 +364,32 @@
         NSString *prevCountry = [prev objectForKey:@"country"];
         NSString *currCountry = [curr objectForKey:@"country"];
         
-        NSString *prevPostalCode = [prev objectForKey:@"zip"];
-        NSString *currPostalCode = [curr objectForKey:@"zip"];
-        
-        NSString *prevState = [prev objectForKey:@"state"];
-        NSString *currState = [curr objectForKey:@"state"];
-        
-        NSString *prevStreet = [prev objectForKey:@"street"];
-        NSString *currStreet = [curr objectForKey:@"street"];
-        
-        return
-        [prevCity isEqualToString:currCity] &&
-        [prevCountry isEqualToString:currCountry] &&
-        [prevPostalCode isEqualToString:currPostalCode] &&
-        [prevState isEqualToString:currState] &&
-        [prevStreet isEqualToString:currStreet];
+        return [prevCity isEqualToString:currCity] && [prevCountry isEqualToString:currCountry];
     }
     return NO;
 }
 
 - (id) needUpdate: (NSString *) key withMessage:(RSMessage *) element {
-    id currValue = [element.traits objectForKey:key];
+    id currValue = [element.context.traits objectForKey:key];
+    
+    if (currValue == nil) { return nil; }
     
     if (self.supportDedup) {
-        id prevValue = [self.previousIdentifyElement.traits objectForKey:key];
+        id prevValue = [self.previousIdentifyElement.context.traits objectForKey:key];
         
-        if ([key isEqualToString:@"address"]) {
-            NSDictionary *currAddress = [currValue objectForKey:@"address"];
-            NSDictionary *prevAddress = [prevValue objectForKey:@"address"];
-            
-            if ([self compareAddress:currAddress withPrevAddress:prevAddress]) {
+        if (prevValue == nil) { return currValue; }
+        
+        if ([key isEqualToString:@"address"] && [currValue isKindOfClass:[NSDictionary class]] && [prevValue isKindOfClass:[NSDictionary class]]) {
+            if ([self compareAddress:(NSDictionary *)currValue withPrevAddress:(NSDictionary *)prevValue]) {
                 return nil;
             } else {
                 return currValue;
             }
+        } else if ([key isEqualToString:@"birthday"] && [currValue isKindOfClass:[NSDate class]] && [prevValue isKindOfClass:[NSDate class]]) {
+            if ([(NSDate *)currValue compare:(NSDate *)prevValue] == NSOrderedSame) {
+                return nil;
+            }
+            return currValue;
         } else if (currValue != nil && [currValue isEqual:prevValue]) {
             return nil;
         } else {

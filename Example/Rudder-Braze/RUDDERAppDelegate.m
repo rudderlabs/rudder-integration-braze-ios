@@ -17,13 +17,14 @@
 {
     // Override point for customization after application launch.
     
-    NSString *WRITE_KEY = @"1UsY362jONW4EOwaZX5MA6FX5Zt";
-    NSString *DATA_PLANE_URL = @"https://8e50d3caecbe.ngrok.io";
+    NSString *WRITE_KEY = @"1wvsoF3Kx2SczQNlx1dvcqW9ODW";
+    NSString *DATA_PLANE_URL = @"https://rudderstacz.dataplane.rudderstack.com";
     
     RSConfigBuilder *configBuilder = [[RSConfigBuilder alloc] init];
     [configBuilder withDataPlaneUrl:DATA_PLANE_URL];
-    [configBuilder withLoglevel:RSLogLevelDebug];
+    [configBuilder withLoglevel:RSLogLevelVerbose];
     [configBuilder withFactory:[RudderBrazeFactory instance]];
+    [configBuilder withTrackLifecycleEvens:NO];
     [RSClient getInstance:WRITE_KEY config:[configBuilder build]];
 
 //    RSOption *identifyOptions = [[RSOption alloc] init];
@@ -39,22 +40,58 @@
 //
 //    [[RSClient sharedInstance] track:@"simple_track_event_1"];
 //
-//    [[RSClient sharedInstance] track:@"simple_track_with_props_1" properties:@{
-//         @"key_1" : @"value_1",
-//         @"key_2" : @"value_2"
-//    }];
 //
 //    [[RSClient sharedInstance] screen:@"Main_1" properties:@{@"prop_key" : @"prop_value"}];
 
-    [[RSClient sharedInstance] reset];
-    [[RSClient sharedInstance] identify: @"test_user_id_ios_2"
-                                 traits: @{
-                                     @"foo": @"bar",
-                                     @"foo1": @"bar1",
-                                     @"email": @"test_2@gmail.com"
-                                 }
-    ];
-    [[RSClient sharedInstance] track:@"simple_track_event_after_reset_2"];
+//    [[RSClient sharedInstance] reset];
+//    [[RSClient sharedInstance] identify: @"test_user_id_ios_2"
+//                                 traits: @{
+//                                     @"foo": @"bar",
+//                                     @"foo1": @"bar1",
+//                                     @"email": @"test_2@gmail.com"
+//                                 }
+//    ];
+//    [[RSClient sharedInstance] track:@"simple_track_event_after_reset_2"];
+    
+    RSOption *option = [[RSOption alloc] init];
+    [option putExternalId:@"brazeExternalId" withId:@"2d31d085-4d93-4126-b2b3-94e651810673"];
+    
+    NSDate *birthday = [[NSDate alloc] init];
+        
+    [[RSClient sharedInstance] identify: @"userid ios 1" traits: @{
+        @"birthday": birthday,
+        @"address": @{
+            @"city": @"City",
+            @"country": @"Country"
+        },
+        @"firstname": @"First Name",
+        @"lastname": @"Last Name",
+        @"gender": @"Male",
+        @"phone": @"0123456789",
+        @"email": @"test@gmail.com",
+        @"key-1": @"value-1",
+        @"key-2": @1234
+    } options:option];
+    
+    [[RSClient sharedInstance] identify: @"userid ios 1" traits: @{
+        @"birthday": birthday,
+        @"address": @{
+            @"city": @"City-2",
+            @"country": @"Country-2"
+        },
+        @"firstname": @"First Name-2",
+        @"lastname": @"Last Name-2",
+        @"gender": @"F",
+        @"phone": @"0123456789-2",
+        @"email": @"test-2@gmail.com",
+        @"key-1": @"value-1-2",
+        @"key-2": @12345
+    } options:option];
+        
+    [[RSClient sharedInstance] track:@"New Track event" properties:@{
+         @"key_1" : @"value_1",
+         @"key_2" : @"value_2"
+    }];
     
     return YES;
 }
