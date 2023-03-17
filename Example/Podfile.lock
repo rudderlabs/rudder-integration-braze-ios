@@ -1,42 +1,35 @@
 PODS:
-  - Appboy-iOS-SDK (4.4.2):
-    - Appboy-iOS-SDK/UI (= 4.4.2)
-  - Appboy-iOS-SDK/ContentCards (4.4.2):
+  - Appboy-iOS-SDK (4.5.4):
+    - Appboy-iOS-SDK/UI (= 4.5.4)
+  - Appboy-iOS-SDK/ContentCards (4.5.4):
     - Appboy-iOS-SDK/Core
     - SDWebImage (< 6, >= 5.8.2)
-  - Appboy-iOS-SDK/Core (4.4.2)
-  - Appboy-iOS-SDK/InAppMessage (4.4.2):
+  - Appboy-iOS-SDK/Core (4.5.4)
+  - Appboy-iOS-SDK/InAppMessage (4.5.4):
     - Appboy-iOS-SDK/Core
     - SDWebImage (< 6, >= 5.8.2)
-  - Appboy-iOS-SDK/NewsFeed (4.4.2):
+  - Appboy-iOS-SDK/NewsFeed (4.5.4):
     - Appboy-iOS-SDK/Core
     - SDWebImage (< 6, >= 5.8.2)
-  - Appboy-iOS-SDK/UI (4.4.2):
+  - Appboy-iOS-SDK/UI (4.5.4):
     - Appboy-iOS-SDK/ContentCards
     - Appboy-iOS-SDK/Core
     - Appboy-iOS-SDK/InAppMessage
     - Appboy-iOS-SDK/NewsFeed
-  - FBSnapshotTestCase (2.1.4):
-    - FBSnapshotTestCase/SwiftSupport (= 2.1.4)
-  - FBSnapshotTestCase/Core (2.1.4)
-  - FBSnapshotTestCase/SwiftSupport (2.1.4):
-    - FBSnapshotTestCase/Core
-  - Rudder (1.8.0)
-  - Rudder-Braze (1.1.0):
-    - Appboy-iOS-SDK (= 4.4.2)
-    - Rudder (~> 1.0)
-  - SDWebImage (5.14.3):
-    - SDWebImage/Core (= 5.14.3)
-  - SDWebImage/Core (5.14.3)
+  - Rudder (1.12.0)
+  - Rudder-Braze (1.1.1):
+    - Appboy-iOS-SDK (~> 4.5.4)
+    - Rudder (~> 1.12)
+  - SDWebImage (5.15.5):
+    - SDWebImage/Core (= 5.15.5)
+  - SDWebImage/Core (5.15.5)
 
 DEPENDENCIES:
-  - FBSnapshotTestCase
   - Rudder-Braze (from `../`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - Appboy-iOS-SDK
-    - FBSnapshotTestCase
     - Rudder
     - SDWebImage
 
@@ -45,12 +38,11 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Appboy-iOS-SDK: 4a7dfe908639da81e5e85849355f6066b58b4cc6
-  FBSnapshotTestCase: 094f9f314decbabe373b87cc339bea235a63e07a
-  Rudder: 0a5272646aa3b89295526cea2bf54d092044848a
-  Rudder-Braze: 2a1cdcdf062dc4c2f6cbd7c19fb59769da3e2432
-  SDWebImage: 9c36e66c8ce4620b41a7407698dda44211a96764
+  Appboy-iOS-SDK: 2fc5b290fe1caa85718b811a19b303d45caea975
+  Rudder: 91e5ac5c13f2094da5440ff13cce4a7337a73c3b
+  Rudder-Braze: 5f6b29a931bf2375edba93be5cbb819d11df0eb6
+  SDWebImage: fd7e1a22f00303e058058278639bf6196ee431fe
 
-PODFILE CHECKSUM: 335b5036b840f5bbe75cfb5f2a5c30f8f247c9ef
+PODFILE CHECKSUM: 3b84981f216e155a2c7e106fe3fd489726918ba3
 
 COCOAPODS: 1.11.3

@@ -1,13 +1,9 @@
+source 'https://github.com/CocoaPods/Specs.git'
 use_frameworks!
+inhibit_all_warnings!
 
 platform :ios, '9.0'
 
 target 'Rudder-Braze_Example' do
   pod 'Rudder-Braze', :path => '../'
-
-  target 'Rudder-Braze_Tests' do
-    inherit! :search_paths
-
-    pod 'FBSnapshotTestCase'
-  end
 end

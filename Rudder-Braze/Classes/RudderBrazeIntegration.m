@@ -18,14 +18,14 @@
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
         NSString *apiToken = [config objectForKey:@"appKey"];
         if ( [apiToken length] == 0) {
-          return nil;
+            return nil;
         }
         
         NSMutableDictionary *appboyOptions = [[NSMutableDictionary alloc] init];
         NSString *dataCenter = [config objectForKey:@"dataCenter"];
         if ((dataCenter && [dataCenter length] != 0)) {
             NSString *customEndpoint = [dataCenter stringByTrimmingCharactersInSet:
-            [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                                        [NSCharacterSet whitespaceAndNewlineCharacterSet]];
             if([@"US-01" isEqualToString:customEndpoint]) {
                 appboyOptions[ABKEndpointKey] = @"sdk.iad-01.braze.com";
             } else if([@"US-02" isEqualToString:customEndpoint]) {
@@ -76,19 +76,19 @@
             [RSLogger logInfo:@"[Braze startWithApiKey:inApplication:withLaunchOptions:withAppboyOptions:]"];
         } else {
             dispatch_sync(dispatch_get_main_queue(), ^{
-              [Appboy startWithApiKey:apiToken
-                        inApplication:[UIApplication sharedApplication]
-                    withLaunchOptions:nil
-                    withAppboyOptions:appboyOptions];
-              [RSLogger logInfo:@"[Braze startWithApiKey:inApplication:withLaunchOptions:withAppboyOptions:]"];
+                [Appboy startWithApiKey:apiToken
+                          inApplication:[UIApplication sharedApplication]
+                      withLaunchOptions:nil
+                      withAppboyOptions:appboyOptions];
+                [RSLogger logInfo:@"[Braze startWithApiKey:inApplication:withLaunchOptions:withAppboyOptions:]"];
             });
         }
     }
     
     if ([Appboy sharedInstance] != nil) {
-      return self;
+        return self;
     } else {
-      return nil;
+        return nil;
     }
 }
 
@@ -108,10 +108,10 @@
 - (void)dump:(nonnull RSMessage *)message {
     if([message.type isEqualToString:@"identify"]) {
         if (![NSThread isMainThread]) {
-          dispatch_async(dispatch_get_main_queue(), ^{
-            [self dump:message];
-          });
-          return;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self dump:message];
+            });
+            return;
         }
         
         if ([message.context.traits[@"lastname"] isKindOfClass:[NSString class]]) {
@@ -136,7 +136,7 @@
             [[Appboy sharedInstance] changeUser:currUserId];
             [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
         }
-                
+        
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
             NSString *email = [self needUpdate:@"email" withMessage:message];
             if (email != nil) {
@@ -160,7 +160,7 @@
                 [RSLogger logInfo: @"Identify: Braze  date of birth"];
             }
         }
-         
+        
         if ([message.context.traits[@"gender"] isKindOfClass:[NSString class]]) {
             NSString *gender = [self needUpdate:@"gender" withMessage:message];
             if (gender != nil) {
@@ -198,8 +198,8 @@
         }
         
         NSArray *appboyTraits = @[@"birthday", @"anonymousId", @"gender", @"phone", @"address", @"firstname", @"lastname", @"email"  ];
-         
-            
+        
+        
         //ignore above traits and get others - free key value pairs
         for (NSString *key in message.context.traits.allKeys) {
             if (![appboyTraits containsObject:key]) {
@@ -237,64 +237,94 @@
         self.previousIdentifyElement = message;
     } else {
         if ([message.event isEqualToString:@"Install Attributed"]) {
-          if ([message.properties[@"campaign"] isKindOfClass:[NSDictionary class]]) {
-            NSDictionary *attributionDataDictionary = (NSDictionary *)message.properties[@"campaign"];
-            ABKAttributionData *attributionData = [[ABKAttributionData alloc]
-                                                   initWithNetwork:attributionDataDictionary[@"source"]
-                                                          campaign:attributionDataDictionary[@"name"]
-                                                           adGroup:attributionDataDictionary[@"ad_group"]
-                                                          creative:attributionDataDictionary[@"ad_creative"]];
-            [[Appboy sharedInstance].user setAttributionData:attributionData];
-            return;
-          }
-        }
-        
-        NSDecimalNumber *revenue = [RudderBrazeIntegration revenueDecimal:message.properties withKey:@"revenue"];
-        if (revenue) {
-          NSString *currency = @"USD";
-            //  USD is default
-          if ([message.properties[@"currency"] isKindOfClass:[NSString class]] &&
-              [(NSString *)message.properties[@"currency"] length] == 3) {
-              //   ISO-4217 used for currency code
-            currency = (NSString *)message.properties[@"currency"];
-          }
-
-          if (message.properties != nil) {
-            NSMutableDictionary *appboyProperties = [NSMutableDictionary dictionaryWithDictionary:message.properties];
-            appboyProperties[@"currency"] = nil;
-            appboyProperties[@"revenue"] = nil;
-            [[Appboy sharedInstance] logPurchase:message.event inCurrency:currency atPrice:revenue withQuantity:1 andProperties:appboyProperties];
-          } else {
-            [[Appboy sharedInstance] logPurchase:message.event inCurrency:currency atPrice:revenue withQuantity:1];
-          }
-          [RSLogger logInfo:@" Braze logPurchase: inCurrency: atPrice: withQuantity: "];
+            if ([message.properties[@"campaign"] isKindOfClass:[NSDictionary class]]) {
+                NSDictionary *attributionDataDictionary = (NSDictionary *)message.properties[@"campaign"];
+                ABKAttributionData *attributionData = [[ABKAttributionData alloc]
+                                                       initWithNetwork:attributionDataDictionary[@"source"]
+                                                       campaign:attributionDataDictionary[@"name"]
+                                                       adGroup:attributionDataDictionary[@"ad_group"]
+                                                       creative:attributionDataDictionary[@"ad_creative"]];
+                [[Appboy sharedInstance].user setAttributionData:attributionData];
+            }
+        } else if ([message.event isEqualToString:@"Order Completed"]) {
+            if (message.properties != nil) {
+                NSArray <BrazePurchase *>*brazePurchaseList = [self getPurchaseList:message.properties];
+                if (brazePurchaseList != nil) {
+                    for (BrazePurchase *brazePurchase in brazePurchaseList) {
+                        [[Appboy sharedInstance] logPurchase:brazePurchase.productId inCurrency:brazePurchase.currency atPrice:brazePurchase.price withQuantity:brazePurchase.quantity andProperties:brazePurchase.properties];
+                        [RSLogger logInfo:@"Braze logPurchase: inCurrency: atPrice: withQuantity: "];
+                    }
+                }
+            }
         } else {
-          [[Appboy sharedInstance] logCustomEvent:message.event withProperties:message.properties];
-          [RSLogger logInfo:@"Brze logCustomEvent: withProperties: "];
+            [[Appboy sharedInstance] logCustomEvent:message.event withProperties:message.properties];
+            [RSLogger logInfo:@"Brze logCustomEvent: withProperties: "];
         }
     }
 }
 
-
-+ (NSDecimalNumber *)revenueDecimal:(NSDictionary *)dictionary withKey:(NSString *)revenueKey
-{
-  id revenueProp  = dictionary[revenueKey];
-  if (revenueProp ) {
-    if ([revenueProp  isKindOfClass:[NSString class]]) {
-      return [NSDecimalNumber decimalNumberWithString:revenueProp];
-    } else if ([revenueProp  isKindOfClass:[NSDecimalNumber class]]) {
-      return revenueProp;
-    } else if ([revenueProp  isKindOfClass:[NSNumber class]]) {
-      return [NSDecimalNumber decimalNumberWithDecimal:[revenueProp  decimalValue]];
+- (NSMutableArray <BrazePurchase *>* _Nullable)getPurchaseList:(NSDictionary *)properties {
+    NSArray <NSDictionary *>*productList = properties[@"products"];
+    if (productList == nil || productList.count == 0) {
+        return nil;
     }
-  }
-  return nil;
+    NSString *currency = @"USD";
+    if ([properties[@"currency"] isKindOfClass:[NSString class]] && [(NSString *)properties[@"currency"] length] == 3) {
+        currency = (NSString *)properties[@"currency"];
+    }
+    
+    NSArray <NSString *>*ignoredKeys = @[@"product_id", @"quantity", @"price", @"products", @"time", @"event_name", @"currency"];
+    NSMutableDictionary *otherProperties = [[NSMutableDictionary alloc] init];
+    [properties enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if ([key isEqualToString:@"revenue"] || [key isEqualToString:@"total"]) {
+            [otherProperties setObject:[RudderBrazeIntegration revenueDecimal:obj] forKey:@"revenue"];
+        } else if (![ignoredKeys containsObject:key]) {
+            [otherProperties setObject:obj forKey:key];
+        }
+    }];
+    
+    NSMutableArray <BrazePurchase *>*purchaseList = [[NSMutableArray alloc] init];
+    for (NSDictionary <NSString *, NSObject *>*product in productList) {
+        __block BrazePurchase *brazePurchase = [[BrazePurchase alloc] init];
+        NSMutableDictionary *appboyProperties = [[NSMutableDictionary alloc] initWithDictionary:otherProperties];
+        
+        [product enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSObject * _Nonnull obj, BOOL * _Nonnull stop) {
+            if ([key isEqualToString:@"product_id"]) {
+                brazePurchase.productId = [NSString stringWithFormat:@"%@", obj];
+            } else if ([key isEqualToString:@"quantity"]) {
+                brazePurchase.quantity = [[NSString stringWithFormat:@"%@", obj] intValue];
+            } else if ([key isEqualToString:@"price"]) {
+                brazePurchase.price = [RudderBrazeIntegration revenueDecimal:obj];
+            } else {
+                [appboyProperties setObject:obj forKey:key];
+            }
+        }];
+        brazePurchase.currency = currency;
+        brazePurchase.properties = appboyProperties;
+        if (brazePurchase.productId == nil || brazePurchase.price == nil) {
+            continue;
+        }
+        [purchaseList addObject:brazePurchase];
+    }
+    return purchaseList.count > 0 ? purchaseList : nil;
 }
 
-- (void)flush
-{
-  [[Appboy sharedInstance] requestImmediateDataFlush];
-  [RSLogger logInfo: @"Braze flushDataAndProcessRequestQueue]"];
++ (NSDecimalNumber *)revenueDecimal:(id)revenueProp {
+    if (revenueProp ) {
+        if ([revenueProp  isKindOfClass:[NSString class]]) {
+            return [NSDecimalNumber decimalNumberWithString:revenueProp];
+        } else if ([revenueProp  isKindOfClass:[NSDecimalNumber class]]) {
+            return revenueProp;
+        } else if ([revenueProp  isKindOfClass:[NSNumber class]]) {
+            return [NSDecimalNumber decimalNumberWithDecimal:[revenueProp  decimalValue]];
+        }
+    }
+    return nil;
+}
+
+- (void)flush {
+    [[Appboy sharedInstance] requestImmediateDataFlush];
+    [RSLogger logInfo: @"Braze flushDataAndProcessRequestQueue]"];
 }
 
 - (void)reset {
@@ -302,58 +332,57 @@
     //NO BRAZE EQUIVALENT
     //[Adjust resetSessionPartnerParameters];
 }
- 
+
 // Forward device token to Braze
-- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
-{
-  [[Appboy sharedInstance] registerDeviceToken:deviceToken];
-  [RSLogger logInfo:@"Braze registerDeviceToken:"];
+- (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [[Appboy sharedInstance] registerDeviceToken:deviceToken];
+    [RSLogger logInfo:@"Braze registerDeviceToken:"];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    if (![[UIApplication sharedApplication].delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
-      [self logPushIfComesInBeforeBrazeInitializedWithIdentifier:nil];
-    }
-  });
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (![[UIApplication sharedApplication].delegate respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)]) {
+            [self logPushIfComesInBeforeBrazeInitializedWithIdentifier:nil];
+        }
+    });
 }
 
 - (void)receivedRemoteNotification:(NSDictionary *)userInfo {
-  if (![self logPushIfComesInBeforeBrazeInitializedWithIdentifier:nil]) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-      [[Appboy sharedInstance] registerApplication:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo];
-    });
-  }
-   [RSLogger logInfo:@"Braze registerApplication: didReceiveRemoteNotification:"];
+    if (![self logPushIfComesInBeforeBrazeInitializedWithIdentifier:nil]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[Appboy sharedInstance] registerApplication:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo];
+        });
+    }
+    [RSLogger logInfo:@"Braze registerApplication: didReceiveRemoteNotification:"];
 }
 
 - (void)handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo {
-  if (![self logPushIfComesInBeforeBrazeInitializedWithIdentifier:identifier]) {
-    [[Appboy sharedInstance] getActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:nil];
-  }
-   [RSLogger logInfo:@"Braze getActionWithIdentifier: forRemoteNotification: completionHandler:"];
+    if (![self logPushIfComesInBeforeBrazeInitializedWithIdentifier:identifier]) {
+        [[Appboy sharedInstance] getActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:nil];
+    }
+    [RSLogger logInfo:@"Braze getActionWithIdentifier: forRemoteNotification: completionHandler:"];
 }
 
 - (BOOL) logPushIfComesInBeforeBrazeInitializedWithIdentifier:(NSString *)identifier {
-  NSDictionary *pushDictionary = [[RudderBrazeFactory instance] getPushPayload];
-  if (pushDictionary != nil && pushDictionary.count > 0) {
-    /*
-    MIRATE TO USERNOTIFICATIONS - WHOLE OF THIS IS DEPRECATED
-    //handle push before braze is initalised
-    if ([[Appboy sharedInstance] respondsToSelector:@selector(handleRemotePushNotification:withIdentifier:completionHandler:applicationState:)]) {
-      
-        [[Appboy sharedInstance]  handleRemotePushNotification:pushDictionary
-                                             withIdentifier:identifier
-                                          completionHandler:nil
-                                           applicationState:UIApplicationStateInactive];
+    NSDictionary *pushDictionary = [[RudderBrazeFactory instance] getPushPayload];
+    if (pushDictionary != nil && pushDictionary.count > 0) {
+        /*
+         MIRATE TO USERNOTIFICATIONS - WHOLE OF THIS IS DEPRECATED
+         //handle push before braze is initalised
+         if ([[Appboy sharedInstance] respondsToSelector:@selector(handleRemotePushNotification:withIdentifier:completionHandler:applicationState:)]) {
+         
+         [[Appboy sharedInstance]  handleRemotePushNotification:pushDictionary
+         withIdentifier:identifier
+         completionHandler:nil
+         applicationState:UIApplicationStateInactive];
+         }
+         */
+        [[RudderBrazeFactory instance] resetRemoteNotification];
+        
+        
+        return YES;
     }
-    */
-    [[RudderBrazeFactory instance] resetRemoteNotification];
-   
-      
-    return YES;
-  }
-  return NO;
+    return NO;
 }
 
 - (BOOL) compareAddress: (NSDictionary *) curr withPrevAddress:(NSDictionary *)prev {
@@ -398,6 +427,20 @@
     }
     
     return currValue;
+}
+
+@end
+
+@implementation BrazePurchase
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _quantity = 1;
+        _properties = [[NSMutableDictionary alloc] init];
+        _currency = @"USD";
+    }
+    return self;
 }
 
 @end

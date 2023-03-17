@@ -10,4 +10,6 @@
 
 @interface RUDDERViewController : UIViewController
 
+@property (nonatomic, strong) IBOutletCollection(UIButton) NSArray *buttons;
+
 @end

@@ -19,6 +19,16 @@
  
 NS_ASSUME_NONNULL_BEGIN
 
+@interface BrazePurchase : NSObject
+
+@property NSString *productId;
+@property int quantity;
+@property NSDecimalNumber *price;
+@property NSMutableDictionary *properties;
+@property NSString *currency;
+
+@end
+
 @interface RudderBrazeIntegration : NSObject<RSIntegration>
 
 @property (nonatomic, strong) NSDictionary *config;

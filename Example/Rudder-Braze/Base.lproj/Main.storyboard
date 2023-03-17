@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13771" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="whP-gf-Uak">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21507" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="whP-gf-Uak">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21505"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -18,14 +17,180 @@
                         <viewControllerLayoutGuide type="bottom" id="Mvr-aV-6Um"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="TpU-gO-2f1">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ysf-eQ-4Ij">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                                <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4EW-4I-BM1">
+                                        <rect key="frame" x="0.0" y="0.0" width="393" height="860"/>
+                                        <subviews>
+                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="g8A-ie-qxz">
+                                                <rect key="frame" x="10" y="0.0" width="373" height="860"/>
+                                                <subviews>
+                                                    <button opaque="NO" tag="10" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="YM8-4E-Trd">
+                                                        <rect key="frame" x="0.0" y="0.0" width="373" height="60"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="60" id="dAd-xr-753"/>
+                                                        </constraints>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Identify">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                    </button>
+                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="22u-do-f09">
+                                                        <rect key="frame" x="0.0" y="80" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Install Attributed event without properties">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="vhu-Qd-34m"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="1" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="psr-jI-hYE">
+                                                        <rect key="frame" x="0.0" y="160" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Install Attributed event with properties">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="tUI-1E-GN9"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Q7Y-G1-Rvd">
+                                                        <rect key="frame" x="0.0" y="240" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Order Completed event without any property">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="2jS-xW-qOd"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="3" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4BT-ce-1Xf">
+                                                        <rect key="frame" x="0.0" y="320" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Order Completed event with only empty product">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="vLr-h1-mcw"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="4" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3lK-ab-NYe">
+                                                        <rect key="frame" x="0.0" y="400" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Order Completed event with products array and custom property.">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="yzd-GJ-RiZ"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nWT-KI-wrz">
+                                                        <rect key="frame" x="0.0" y="480" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Order Completed event with products array and without custom property.">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="k1b-Zg-8Kv"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="6" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oDR-UB-Xiv">
+                                                        <rect key="frame" x="0.0" y="560" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Custom event name with products property">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="Z9i-Zl-xrR"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="7" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QPy-d7-u6H">
+                                                        <rect key="frame" x="0.0" y="640" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Order Completed with two products">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="mXc-t8-PXM"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="8" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h5M-EL-XN8">
+                                                        <rect key="frame" x="0.0" y="720" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Custom event name with properties">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="f8Q-qj-f9H"/>
+                                                        </connections>
+                                                    </button>
+                                                    <button opaque="NO" tag="9" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hqD-7A-97w">
+                                                        <rect key="frame" x="0.0" y="800" width="373" height="60"/>
+                                                        <state key="normal" title="Button"/>
+                                                        <buttonConfiguration key="configuration" style="tinted" title="Custom event name without properties">
+                                                            <fontDescription key="titleFontDescription" type="system" pointSize="10"/>
+                                                        </buttonConfiguration>
+                                                        <connections>
+                                                            <action selector="onButtonTap:" destination="whP-gf-Uak" eventType="touchUpInside" id="88c-gZ-Gh5"/>
+                                                        </connections>
+                                                    </button>
+                                                </subviews>
+                                            </stackView>
+                                        </subviews>
+                                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                        <constraints>
+                                            <constraint firstAttribute="trailing" secondItem="g8A-ie-qxz" secondAttribute="trailing" constant="10" id="KTc-0Z-xRb"/>
+                                            <constraint firstItem="g8A-ie-qxz" firstAttribute="top" secondItem="4EW-4I-BM1" secondAttribute="top" id="QEP-YI-94N"/>
+                                            <constraint firstAttribute="bottom" secondItem="g8A-ie-qxz" secondAttribute="bottom" id="XFl-id-yt1"/>
+                                            <constraint firstItem="g8A-ie-qxz" firstAttribute="leading" secondItem="4EW-4I-BM1" secondAttribute="leading" constant="10" id="YYL-Lt-aRn"/>
+                                        </constraints>
+                                    </view>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="4EW-4I-BM1" firstAttribute="leading" secondItem="ysf-eQ-4Ij" secondAttribute="leading" id="Rwz-JQ-llO"/>
+                                    <constraint firstAttribute="trailing" secondItem="4EW-4I-BM1" secondAttribute="trailing" id="cni-OG-Uyz"/>
+                                    <constraint firstAttribute="bottom" secondItem="4EW-4I-BM1" secondAttribute="bottom" id="hRq-8X-QaS"/>
+                                    <constraint firstItem="4EW-4I-BM1" firstAttribute="top" secondItem="ysf-eQ-4Ij" secondAttribute="top" id="iEv-h0-R2R"/>
+                                    <constraint firstItem="4EW-4I-BM1" firstAttribute="width" secondItem="ysf-eQ-4Ij" secondAttribute="width" id="wyA-ND-yAd"/>
+                                </constraints>
+                            </scrollView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="ysf-eQ-4Ij" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leading" id="F68-8k-qe7"/>
+                            <constraint firstItem="ysf-eQ-4Ij" firstAttribute="width" secondItem="TpU-gO-2f1" secondAttribute="width" id="NJe-mV-L8m"/>
+                            <constraint firstAttribute="trailing" secondItem="ysf-eQ-4Ij" secondAttribute="trailing" id="QFF-0X-uVO"/>
+                            <constraint firstItem="Mvr-aV-6Um" firstAttribute="top" secondItem="ysf-eQ-4Ij" secondAttribute="bottom" id="dD5-JT-RMB"/>
+                            <constraint firstItem="ysf-eQ-4Ij" firstAttribute="top" secondItem="uEw-UM-LJ8" secondAttribute="bottom" id="pai-nF-o9C"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outletCollection property="buttons" destination="4BT-ce-1Xf" id="iEn-2D-UYF"/>
+                        <outletCollection property="buttons" destination="oDR-UB-Xiv" id="Ex6-xn-RYl"/>
+                        <outletCollection property="buttons" destination="psr-jI-hYE" id="LDb-sr-r14"/>
+                        <outletCollection property="buttons" destination="YM8-4E-Trd" id="Fru-zM-YJb"/>
+                        <outletCollection property="buttons" destination="hqD-7A-97w" id="byo-67-xlc"/>
+                        <outletCollection property="buttons" destination="QPy-d7-u6H" id="3dQ-Xb-lfW"/>
+                        <outletCollection property="buttons" destination="3lK-ab-NYe" id="AT5-MF-WIr"/>
+                        <outletCollection property="buttons" destination="h5M-EL-XN8" id="dn7-sO-AQV"/>
+                        <outletCollection property="buttons" destination="22u-do-f09" id="Dgq-09-vWA"/>
+                        <outletCollection property="buttons" destination="nWT-KI-wrz" id="RMu-xu-Ye5"/>
+                        <outletCollection property="buttons" destination="Q7Y-G1-Rvd" id="CjE-LY-1N5"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="tc2-Qw-aMS" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="305" y="433"/>
         </scene>
     </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>
