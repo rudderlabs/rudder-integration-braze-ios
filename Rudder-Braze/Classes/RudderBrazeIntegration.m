@@ -280,9 +280,7 @@
     NSArray <NSString *>*ignoredKeys = @[@"product_id", @"quantity", @"price", @"products", @"time", @"event_name", @"currency"];
     NSMutableDictionary *otherProperties = [[NSMutableDictionary alloc] init];
     [properties enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if ([key isEqualToString:@"revenue"] || [key isEqualToString:@"total"]) {
-            [otherProperties setObject:[RudderBrazeIntegration revenueDecimal:obj] forKey:@"revenue"];
-        } else if (![ignoredKeys containsObject:key]) {
+        if (![ignoredKeys containsObject:key]) {
             [otherProperties setObject:obj forKey:key];
         }
     }];
