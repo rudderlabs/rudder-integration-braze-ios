@@ -245,6 +245,10 @@
                                                        adGroup:attributionDataDictionary[@"ad_group"]
                                                        creative:attributionDataDictionary[@"ad_creative"]];
                 [[Appboy sharedInstance].user setAttributionData:attributionData];
+                [RSLogger logInfo:@"Braze setAttributionData:"];
+            } else {
+                [[Appboy sharedInstance] logCustomEvent:message.event withProperties:message.properties];
+                [RSLogger logInfo:@"Braze logCustomEvent: withProperties:"];
             }
         } else if ([message.event isEqualToString:@"Order Completed"]) {
             if (message.properties != nil) {
@@ -252,13 +256,13 @@
                 if (brazePurchaseList != nil) {
                     for (BrazePurchase *brazePurchase in brazePurchaseList) {
                         [[Appboy sharedInstance] logPurchase:brazePurchase.productId inCurrency:brazePurchase.currency atPrice:brazePurchase.price withQuantity:brazePurchase.quantity andProperties:brazePurchase.properties];
-                        [RSLogger logInfo:@"Braze logPurchase: inCurrency: atPrice: withQuantity: "];
+                        [RSLogger logInfo:@"Braze logPurchase: inCurrency: atPrice: withQuantity: andProperties:"];
                     }
                 }
             }
         } else {
             [[Appboy sharedInstance] logCustomEvent:message.event withProperties:message.properties];
-            [RSLogger logInfo:@"Brze logCustomEvent: withProperties: "];
+            [RSLogger logInfo:@"Braze logCustomEvent: withProperties:"];
         }
     }
 }

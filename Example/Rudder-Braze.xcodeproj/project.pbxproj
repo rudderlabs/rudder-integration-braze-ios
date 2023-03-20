@@ -114,7 +114,7 @@
 			isa = PBXGroup;
 			children = (
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
-				6003F593195388D20070C39A /* Example for Rudder-Braze */,
+				6003F593195388D20070C39A /* Rudder-Braze */,
 				6003F5B5195388D20070C39A /* Tests */,
 				6003F58C195388D20070C39A /* Frameworks */,
 				6003F58B195388D20070C39A /* Products */,
@@ -143,7 +143,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		6003F593195388D20070C39A /* Example for Rudder-Braze */ = {
+		6003F593195388D20070C39A /* Rudder-Braze */ = {
 			isa = PBXGroup;
 			children = (
 				EDA2C5BB29C4339000B7FF42 /* RudderConfig */,
@@ -157,7 +157,6 @@
 				873B8AEA1B1F5CCA007FD442 /* Main.storyboard */,
 				6003F594195388D20070C39A /* Supporting Files */,
 			);
-			name = "Example for Rudder-Braze";
 			path = "Rudder-Braze";
 			sourceTree = "<group>";
 		};
