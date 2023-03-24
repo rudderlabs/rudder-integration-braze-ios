@@ -17,6 +17,9 @@
 {
     // Override point for customization after application launch.
     
+    /// Copy the `SampleRudderConfig.plist` and rename it to`RudderConfig.plist` on the same directory.
+    /// Update the values as per your need.
+    
     NSString *path = [[NSBundle mainBundle] pathForResource:@"RudderConfig" ofType:@"plist"];
     if (path != nil) {
         NSURL *url = [NSURL fileURLWithPath:path];
