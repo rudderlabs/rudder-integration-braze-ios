@@ -17,6 +17,7 @@
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
         NSString *apiToken = [config objectForKey:@"appKey"];
+        sendEvents = [[config objectForKey:@"useNativeSDKToSend"] boolValue] ? YES : NO;
         if ( [apiToken length] == 0) {
             return nil;
         }
@@ -106,6 +107,9 @@
 }
 
 - (void)dump:(nonnull RSMessage *)message {
+    if (!sendEvents) {
+        return;
+    }
     if([message.type isEqualToString:@"identify"]) {
         if (![NSThread isMainThread]) {
             dispatch_async(dispatch_get_main_queue(), ^{

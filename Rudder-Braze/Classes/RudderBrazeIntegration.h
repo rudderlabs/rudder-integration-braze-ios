@@ -29,7 +29,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface RudderBrazeIntegration : NSObject<RSIntegration>
+@interface RudderBrazeIntegration : NSObject<RSIntegration> {
+    BOOL sendEvents;
+}
 
 @property (nonatomic, strong) NSDictionary *config;
 @property (nonatomic, strong) RSClient *client;
