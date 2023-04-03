@@ -439,15 +439,17 @@
 }
 
 - (ConnectionMode)getConnectionMode:(NSDictionary *)config {
-    NSString *connectionMode = [[config objectForKey:@"connectionMode"] stringValue];
-    if ([connectionMode isEqualToString:@"cloud"]) {
-        return ConnectionModeCloud;
-    } else if ([connectionMode isEqualToString:@"device"]) {
-        return ConnectionModeDevice;
-    } else if ([connectionMode isEqualToString:@"hybrid"]) {
-        return ConnectionModeHybrid;
-    } else {
+    NSString *connectionMode = ([config objectForKey:@"connectionMode"]) ? [NSString stringWithFormat:@"%@", [config objectForKey:@"connectionMode"]] : nil;
+    if (connectionMode == nil) {
         if ([[config objectForKey:@"useNativeSDKToSend"] boolValue]) {
+            return ConnectionModeDevice;
+        } else {
+            return ConnectionModeHybrid;
+        }
+    } else {
+        if ([connectionMode isEqualToString:@"cloud"]) {
+            return ConnectionModeCloud;
+        } else if ([connectionMode isEqualToString:@"device"]) {
             return ConnectionModeDevice;
         } else {
             return ConnectionModeHybrid;

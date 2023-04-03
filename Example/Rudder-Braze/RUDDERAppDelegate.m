@@ -26,7 +26,8 @@
         RudderConfig *rudderConfig = [RudderConfig createFrom:url];
         if (rudderConfig != nil) {
             RSConfigBuilder *configBuilder = [[RSConfigBuilder alloc] init];
-            [configBuilder withDataPlaneUrl:rudderConfig.PROD_DATA_PLANE_URL];
+            [configBuilder withDataPlaneUrl:rudderConfig.DEV_DATA_PLANE_URL];
+            [configBuilder withControlPlaneUrl:rudderConfig.DEV_CONTROL_PLANE_URL];
             [configBuilder withLoglevel:RSLogLevelVerbose];
             [configBuilder withFactory:[RudderBrazeFactory instance]];
             [configBuilder withTrackLifecycleEvens:NO];
