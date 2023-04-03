@@ -447,12 +447,12 @@
             return ConnectionModeCloud;
         }
     } else {
-        if ([connectionMode isEqualToString:@"cloud"]) {
-            return ConnectionModeCloud;
+        if ([connectionMode isEqualToString:@"hybrid"]) {
+            return ConnectionModeHybrid;
         } else if ([connectionMode isEqualToString:@"device"]) {
             return ConnectionModeDevice;
         } else {
-            return ConnectionModeHybrid;
+            return ConnectionModeCloud;
         }
     }
 }
