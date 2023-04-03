@@ -11,13 +11,16 @@
 
 #pragma mark - Initialization
 
+
+
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(nonnull RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig {
     if (self = [super init]) {
         self.config = config;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
         NSString *apiToken = [config objectForKey:@"appKey"];
-        sendEvents = [[config objectForKey:@"useNativeSDKToSend"] boolValue] ? YES : NO;
+        connectionMode = [self getConnectionMode:config];
+        
         if ( [apiToken length] == 0) {
             return nil;
         }
@@ -107,7 +110,7 @@
 }
 
 - (void)dump:(nonnull RSMessage *)message {
-    if (!sendEvents) {
+    if (connectionMode != ConnectionModeDevice) {
         return;
     }
     if([message.type isEqualToString:@"identify"]) {
@@ -433,6 +436,23 @@
     }
     
     return currValue;
+}
+
+- (ConnectionMode)getConnectionMode:(NSDictionary *)config {
+    NSString *connectionMode = [[config objectForKey:@"connectionMode"] stringValue];
+    if ([connectionMode isEqualToString:@"cloud"]) {
+        return ConnectionModeCloud;
+    } else if ([connectionMode isEqualToString:@"device"]) {
+        return ConnectionModeDevice;
+    } else if ([connectionMode isEqualToString:@"hybrid"]) {
+        return ConnectionModeHybrid;
+    } else {
+        if ([[config objectForKey:@"useNativeSDKToSend"] boolValue]) {
+            return ConnectionModeDevice;
+        } else {
+            return ConnectionModeHybrid;
+        }
+    }
 }
 
 @end
