@@ -441,10 +441,10 @@
 - (ConnectionMode)getConnectionMode:(NSDictionary *)config {
     NSString *connectionMode = ([config objectForKey:@"connectionMode"]) ? [NSString stringWithFormat:@"%@", [config objectForKey:@"connectionMode"]] : nil;
     if (connectionMode == nil) {
-        if ([[config objectForKey:@"useNativeSDKToSend"] boolValue]) {
+        if (([config objectForKey:@"connectionMode"]) && [[config objectForKey:@"useNativeSDKToSend"] boolValue]) {
             return ConnectionModeDevice;
         } else {
-            return ConnectionModeHybrid;
+            return ConnectionModeCloud;
         }
     } else {
         if ([connectionMode isEqualToString:@"cloud"]) {
