@@ -16,7 +16,7 @@ jobs:
         id: check-outdated-pods-and-create-issue
         uses: rudderlabs/github-action-updated-pods-notifier@main
         with:
-          outdated-pod-names: "Appboy-iOS-SDK"
+          outdated-pod-names: "BrazeKit"
           directory: "Example"
           title: "fix: update Braze SDK to the latest version"
           assignee: "desusai7"
