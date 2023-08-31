@@ -1,48 +1,27 @@
 PODS:
-  - Appboy-iOS-SDK (4.5.4):
-    - Appboy-iOS-SDK/UI (= 4.5.4)
-  - Appboy-iOS-SDK/ContentCards (4.5.4):
-    - Appboy-iOS-SDK/Core
-    - SDWebImage (< 6, >= 5.8.2)
-  - Appboy-iOS-SDK/Core (4.5.4)
-  - Appboy-iOS-SDK/InAppMessage (4.5.4):
-    - Appboy-iOS-SDK/Core
-    - SDWebImage (< 6, >= 5.8.2)
-  - Appboy-iOS-SDK/NewsFeed (4.5.4):
-    - Appboy-iOS-SDK/Core
-    - SDWebImage (< 6, >= 5.8.2)
-  - Appboy-iOS-SDK/UI (4.5.4):
-    - Appboy-iOS-SDK/ContentCards
-    - Appboy-iOS-SDK/Core
-    - Appboy-iOS-SDK/InAppMessage
-    - Appboy-iOS-SDK/NewsFeed
-  - Rudder (1.12.0)
-  - Rudder-Braze (1.1.1):
-    - Appboy-iOS-SDK (~> 4.5.4)
+  - BrazeKit (6.6.0)
+  - Rudder (1.17.0)
+  - Rudder-Braze (1.2.0):
+    - BrazeKit (~> 6.6.0)
     - Rudder (~> 1.12)
-  - SDWebImage (5.15.5):
-    - SDWebImage/Core (= 5.15.5)
-  - SDWebImage/Core (5.15.5)
 
 DEPENDENCIES:
   - Rudder-Braze (from `../`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
-    - Appboy-iOS-SDK
+    - BrazeKit
     - Rudder
-    - SDWebImage
 
 EXTERNAL SOURCES:
   Rudder-Braze:
     :path: "../"
 
 SPEC CHECKSUMS:
-  Appboy-iOS-SDK: 2fc5b290fe1caa85718b811a19b303d45caea975
-  Rudder: 91e5ac5c13f2094da5440ff13cce4a7337a73c3b
-  Rudder-Braze: 5f6b29a931bf2375edba93be5cbb819d11df0eb6
-  SDWebImage: fd7e1a22f00303e058058278639bf6196ee431fe
+  BrazeKit: 3c25fd2317ef39059c7305074c3662971f6373cc
+  Rudder: 3f4ab09638452282a22b96a388b54132dcd3fca8
+  Rudder-Braze: 22d60abb3ab8d5864606d7515794d04dcab743f8
 
-PODFILE CHECKSUM: 3b84981f216e155a2c7e106fe3fd489726918ba3
+PODFILE CHECKSUM: cc0486713ced089647add5645100feb3965e5ebb
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.11.3

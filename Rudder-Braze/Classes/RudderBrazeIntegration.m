@@ -22,74 +22,67 @@
         connectionMode = [self getConnectionMode:config];
         
         if ( [apiToken length] == 0) {
+            [RSLogger logError:@"API Token is invalid. Aborting Braze SDK initalisation."];
             return nil;
         }
         
         NSMutableDictionary *appboyOptions = [[NSMutableDictionary alloc] init];
         NSString *dataCenter = [config objectForKey:@"dataCenter"];
+        NSString *brazeEndPoint;
         if ((dataCenter && [dataCenter length] != 0)) {
             NSString *customEndpoint = [dataCenter stringByTrimmingCharactersInSet:
                                         [NSCharacterSet whitespaceAndNewlineCharacterSet]];
             if([@"US-01" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-01.braze.com";
+                brazeEndPoint = @"sdk.iad-01.braze.com";
             } else if([@"US-02" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-02.braze.com";
+                brazeEndPoint = @"sdk.iad-02.braze.com";
             } else if([@"US-03" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-03.braze.com";
+                brazeEndPoint = @"sdk.iad-03.braze.com";
             } else if([@"US-04" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-04.braze.com";
+                brazeEndPoint = @"sdk.iad-04.braze.com";
             } else if([@"US-05" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-05.braze.com";
+                brazeEndPoint = @"sdk.iad-05.braze.com";
             } else if([@"US-06" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-06.braze.com";
+                brazeEndPoint = @"sdk.iad-06.braze.com";
             } else if([@"US-08" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.iad-08.braze.com";
+                brazeEndPoint = @"sdk.iad-08.braze.com";
             } else if([@"EU-01" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.fra-01.braze.eu";
+                brazeEndPoint = @"sdk.fra-01.braze.eu";
             } else if([@"EU-02" isEqualToString:customEndpoint]) {
-                appboyOptions[ABKEndpointKey] = @"sdk.fra-02.braze.eu";
+                brazeEndPoint = @"sdk.fra-02.braze.eu";
             }
         }
         
-        // For more details on Braze log level -> https://www.braze.com/docs/developer_guide/platform_integration_guides/ios/initial_sdk_setup/other_sdk_customizations/#braze-log-level
+        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:apiToken
+                                                                          endpoint:brazeEndPoint];
+        
+        // For more details on Braze log level -> https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/initial_sdk_setup/other_sdk_customizations/#braze-log-level
         switch (rudderConfig.logLevel) {
-            case 5: //RSLogLevelVerbose
-                appboyOptions[ABKLogLevelKey] = @0;
-                break;
-            case 4: //RSLogLevelDebug
-                appboyOptions[ABKLogLevelKey] = @1;
+            case 0: // RSLogLevelNone
+                [configuration.logger setLevel:BRZLoggerLevelDisabled];
+            case 1: //RSLogLevelError
+                [configuration.logger setLevel:BRZLoggerLevelError];
                 break;
             case 2: //RSLogLevelWarning
-                appboyOptions[ABKLogLevelKey] = @2;
-                break;
-            case 1: //RSLogLevelError
-                appboyOptions[ABKLogLevelKey] = @4;
+                [configuration.logger setLevel:BRZLoggerLevelError];
                 break;
             case 3: //RSLogLevelInfo
-                appboyOptions[ABKLogLevelKey] = @8;
+                [configuration.logger setLevel:BRZLoggerLevelInfo];
+                break;
+            case 4: //RSLogLevelDebug
+                [configuration.logger setLevel:BRZLoggerLevelDebug];
+                break;
+            case 5: //RSLogLevelVerbose
+                [configuration.logger setLevel:BRZLoggerLevelDebug];
                 break;
             default:
                 break;
         }
-        
-        if ([NSThread isMainThread]) {
-            [Appboy startWithApiKey:apiToken
-                      inApplication:[UIApplication sharedApplication]
-                  withLaunchOptions:nil
-                  withAppboyOptions:appboyOptions];
-            [RSLogger logInfo:@"[Braze startWithApiKey:inApplication:withLaunchOptions:withAppboyOptions:]"];
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [Appboy startWithApiKey:apiToken
-                          inApplication:[UIApplication sharedApplication]
-                      withLaunchOptions:nil
-                      withAppboyOptions:appboyOptions];
-                [RSLogger logInfo:@"[Braze startWithApiKey:inApplication:withLaunchOptions:withAppboyOptions:]"];
-            });
-        }
+
+        self->braze = [[Braze alloc] initWithConfiguration:configuration];
     }
     
-    if ([Appboy sharedInstance] != nil) {
+    if (self->braze != nil) {
         return self;
     } else {
         return nil;
@@ -124,7 +117,7 @@
         if ([message.context.traits[@"lastname"] isKindOfClass:[NSString class]]) {
             NSString *lastName = [self needUpdate:@"lastname" withMessage:message];
             if (lastName != nil) {
-                [Appboy sharedInstance].user.lastName = lastName;
+                [self->braze.user setLastName:lastName];
                 [RSLogger logInfo:@"Identify: Braze user lastname"];
             }
         }
@@ -137,17 +130,17 @@
         NSString *currUserId = message.userId;
         
         if ((prevExternalId == nil && currExternalId != nil) || (![currExternalId isEqual:prevExternalId])) {
-            [[Appboy sharedInstance] changeUser:currExternalId];
+            [self->braze changeUser:currExternalId];
             [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
         } else if ((prevUserId == nil && currUserId != nil) || (![currUserId isEqual:prevUserId])) {
-            [[Appboy sharedInstance] changeUser:currUserId];
+            [self->braze changeUser:currUserId];
             [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
         }
         
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
             NSString *email = [self needUpdate:@"email" withMessage:message];
             if (email != nil) {
-                [Appboy sharedInstance].user.email = email;
+                [self->braze.user setEmail:email];
                 [RSLogger logInfo:@"Identify: Braze email"];
             }
         }
@@ -155,7 +148,7 @@
         if ([message.context.traits[@"firstname"] isKindOfClass:[NSString class]]) {
             NSString *firstName = [self needUpdate:@"firstname" withMessage:message];
             if (firstName != nil) {
-                [Appboy sharedInstance].user.firstName = firstName;
+                [self->braze.user setFirstName:firstName];
                 [RSLogger logInfo: @"Identify: Braze firstname"];
             }
         }
@@ -163,7 +156,7 @@
         if ([message.context.traits[@"birthday"] isKindOfClass:[NSDate class]]) {
             NSDate *birthday =[self needUpdate:@"birthday" withMessage:message];
             if (birthday != nil) {
-                [Appboy sharedInstance].user.dateOfBirth = birthday;
+                [self->braze.user setDateOfBirth:birthday];
                 [RSLogger logInfo: @"Identify: Braze  date of birth"];
             }
         }
@@ -172,10 +165,10 @@
             NSString *gender = [self needUpdate:@"gender" withMessage:message];
             if (gender != nil) {
                 if ([gender.lowercaseString isEqualToString:@"m"] || [gender.lowercaseString isEqualToString:@"male"]) {
-                    [[Appboy sharedInstance].user setGender:ABKUserGenderMale];
+                    [self->braze.user setGender:BRZUserGender.male];
                     [RSLogger logInfo:@"Identify: Braze  gender"];
                 } else if ([gender.lowercaseString isEqualToString:@"f"] || [gender.lowercaseString isEqualToString:@"female"]) {
-                    [[Appboy sharedInstance].user setGender:ABKUserGenderFemale];
+                    [self->braze.user setGender:BRZUserGender.female];
                     [RSLogger logInfo:@"Identify: Braze  gender"];
                 }
             }
@@ -184,7 +177,7 @@
         if ([message.context.traits[@"phone"] isKindOfClass:[NSString class]]) {
             NSString *phone = [self needUpdate:@"phone" withMessage:message];
             if (phone != nil) {
-                [Appboy sharedInstance].user.phone = phone;
+                self->braze.user.phone = phone;
                 [RSLogger logInfo:@"Identify: Braze  phone"];
             }
         }
@@ -193,12 +186,12 @@
             NSDictionary *address = [self needUpdate:@"address" withMessage:message];
             if (address != nil) {
                 if ([address[@"city"] isKindOfClass:[NSString class]]) {
-                    [Appboy sharedInstance].user.homeCity = address[@"city"];
+                    [self->braze.user setHomeCity:address[@"city"]];
                     [RSLogger logInfo:@"Identify: Braze  homecity"];
                 }
                 
                 if ([address[@"country"] isKindOfClass:[NSString class]]) {
-                    [Appboy sharedInstance].user.country = address[@"country"];
+                    [self->braze.user setCountry:address[@"country"]];
                     [RSLogger logInfo:@"Identify: Braze  country"];
                 }
             }
@@ -213,48 +206,48 @@
                 id traitValue = [self needUpdate:key withMessage:message];
                 if (traitValue != nil) {
                     if ([traitValue isKindOfClass:[NSString class]]) {
-                        [[Appboy sharedInstance].user setCustomAttributeWithKey:key andStringValue:traitValue];
+                        [self->braze.user setCustomAttributeWithKey:key stringValue:traitValue];
                         [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andStringValue: "];
                     } else if ([traitValue isKindOfClass:[NSDate class]]) {
-                        [[Appboy sharedInstance].user setCustomAttributeWithKey:key andDateValue:traitValue];
+                        [self->braze.user setCustomAttributeWithKey:key andDateValue:traitValue];
                         [RSLogger logInfo: @"Braze setCustomAttributeWithKey: andDateValue: "];
                     } else if ([traitValue isKindOfClass:[NSNumber class]]) {
                         if (strcmp([traitValue objCType], [@(YES) objCType]) == 0) {
-                            [[Appboy sharedInstance].user setCustomAttributeWithKey:key andBOOLValue:[(NSNumber *)traitValue boolValue]];
+                            [self->braze.user setCustomAttributeWithKey:key andBOOLValue:[(NSNumber *)traitValue boolValue]];
                             [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andBOOLValue:"];
                         } else if (strcmp([traitValue objCType], @encode(short)) == 0 ||
                                    strcmp([traitValue objCType], @encode(int)) == 0 ||
                                    strcmp([traitValue objCType], @encode(long)) == 0) {
-                            [[Appboy sharedInstance].user setCustomAttributeWithKey:key andIntegerValue:[(NSNumber *)traitValue integerValue]];
+                            [self->braze.user setCustomAttributeWithKey:key andIntegerValue:[(NSNumber *)traitValue integerValue]];
                             [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andIntegerValue:"];
                         } else if (strcmp([traitValue objCType], @encode(float)) == 0 ||
                                    strcmp([traitValue objCType], @encode(double)) == 0) {
-                            [[Appboy sharedInstance].user setCustomAttributeWithKey:key andDoubleValue:[(NSNumber *)traitValue doubleValue]];
+                            [self->braze.user setCustomAttributeWithKey:key andDoubleValue:[(NSNumber *)traitValue doubleValue]];
                             [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andDoubleValue:"];
                         } else {
                             [RSLogger logInfo:@"NSNumber could not be mapped to customAttribute"];
                         }
                     } else if ([traitValue isKindOfClass:[NSArray class]]) {
-                        [[Appboy sharedInstance].user setCustomAttributeArrayWithKey:key array:traitValue];
+                        [self->braze.user setCustomAttributeArrayWithKey:key array:traitValue];
                         [RSLogger logInfo:@"Braze setCustomAttributeArrayWithKey: array:"];
                     }
                 }
             }
         }
         self.previousIdentifyElement = message;
-    } else {
+    } else if([message.type isEqualToString:@"track"]) {
         if ([message.event isEqualToString:@"Install Attributed"]) {
             if ([message.properties[@"campaign"] isKindOfClass:[NSDictionary class]]) {
                 NSDictionary *attributionDataDictionary = (NSDictionary *)message.properties[@"campaign"];
-                ABKAttributionData *attributionData = [[ABKAttributionData alloc]
+                BRZUserAttributionData *attributionData = [[BRZUserAttributionData alloc]
                                                        initWithNetwork:attributionDataDictionary[@"source"]
                                                        campaign:attributionDataDictionary[@"name"]
                                                        adGroup:attributionDataDictionary[@"ad_group"]
                                                        creative:attributionDataDictionary[@"ad_creative"]];
-                [[Appboy sharedInstance].user setAttributionData:attributionData];
+                [self->braze.user setAttributionData:attributionData];
                 [RSLogger logInfo:@"Braze setAttributionData:"];
             } else {
-                [[Appboy sharedInstance] logCustomEvent:message.event withProperties:message.properties];
+                [self->braze logCustomEvent:message.event withProperties:message.properties];
                 [RSLogger logInfo:@"Braze logCustomEvent: withProperties:"];
             }
         } else if ([message.event isEqualToString:@"Order Completed"]) {
@@ -262,13 +255,13 @@
                 NSArray <BrazePurchase *>*brazePurchaseList = [self getPurchaseList:message.properties];
                 if (brazePurchaseList != nil) {
                     for (BrazePurchase *brazePurchase in brazePurchaseList) {
-                        [[Appboy sharedInstance] logPurchase:brazePurchase.productId inCurrency:brazePurchase.currency atPrice:brazePurchase.price withQuantity:brazePurchase.quantity andProperties:brazePurchase.properties];
+                        [self->braze logPurchase:brazePurchase.productId inCurrency:brazePurchase.currency atPrice:brazePurchase.price withQuantity:brazePurchase.quantity andProperties:brazePurchase.properties];
                         [RSLogger logInfo:@"Braze logPurchase: inCurrency: atPrice: withQuantity: andProperties:"];
                     }
                 }
             }
         } else {
-            [[Appboy sharedInstance] logCustomEvent:message.event withProperties:message.properties];
+            [self->braze logCustomEvent:message.event withProperties:message.properties];
             [RSLogger logInfo:@"Braze logCustomEvent: withProperties:"];
         }
     }
@@ -332,19 +325,18 @@
 }
 
 - (void)flush {
-    [[Appboy sharedInstance] requestImmediateDataFlush];
+    [self->braze requestImmediateDataFlush];
     [RSLogger logInfo: @"Braze flushDataAndProcessRequestQueue]"];
 }
 
 - (void)reset {
-    //[self flush];
     //NO BRAZE EQUIVALENT
-    //[Adjust resetSessionPartnerParameters];
 }
 
+// Refer to the Braze doc: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#step-1-register-for-push-notifications-with-apns
 // Forward device token to Braze
 - (void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [[Appboy sharedInstance] registerDeviceToken:deviceToken];
+    [self->braze.notifications registerDeviceToken:deviceToken];
     [RSLogger logInfo:@"Braze registerDeviceToken:"];
 }
 
@@ -359,7 +351,8 @@
 - (void)receivedRemoteNotification:(NSDictionary *)userInfo {
     if (![self logPushIfComesInBeforeBrazeInitializedWithIdentifier:nil]) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            [[Appboy sharedInstance] registerApplication:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo];
+//            [self->braze registerApplication:[UIApplication sharedApplication] didReceiveRemoteNotification:userInfo];
+            NSLog(userInfo);
         });
     }
     [RSLogger logInfo:@"Braze registerApplication: didReceiveRemoteNotification:"];
@@ -367,7 +360,8 @@
 
 - (void)handleActionWithIdentifier:(NSString *)identifier forRemoteNotification:(NSDictionary *)userInfo {
     if (![self logPushIfComesInBeforeBrazeInitializedWithIdentifier:identifier]) {
-        [[Appboy sharedInstance] getActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:nil];
+        NSLog(userInfo);
+//        [self->braze getActionWithIdentifier:identifier forRemoteNotification:userInfo completionHandler:nil];
     }
     [RSLogger logInfo:@"Braze getActionWithIdentifier: forRemoteNotification: completionHandler:"];
 }

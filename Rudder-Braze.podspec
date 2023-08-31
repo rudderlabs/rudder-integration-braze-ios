@@ -2,7 +2,7 @@ require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
-appboy_sdk_version = '~> 4.5.4'
+braze_kit = '~> 6.6.0'
 rudder_sdk_version = '~> 1.12'
 
 Pod::Spec.new do |s|
@@ -19,14 +19,14 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   s.author           = { 'RudderStack' => 'arnab@rudderstack.com' }
   s.source           = { :git => 'https://github.com/rudderlabs/rudder-integration-braze-ios.git', :tag => "v#{s.version}" }
 
-  s.ios.deployment_target = '9.0'
+  s.ios.deployment_target = '11.0'
   s.source_files = 'Rudder-Braze/Classes/**/*'
 
-  if defined?($AppboySDKVersion)
-    Pod::UI.puts "#{s.name}: Using user specified Appboy SDK version '#{$AppboySDKVersion}'"
-    appboy_sdk_version = $AppboySDKVersion
+  if defined?($BrazeKit)
+    Pod::UI.puts "#{s.name}: Using user specified Braze SDK version '#{$BrazeKit}'"
+    braze_kit = $BrazeKit
   else
-    Pod::UI.puts "#{s.name}: Using default Appboy SDK version '#{appboy_sdk_version}'"
+    Pod::UI.puts "#{s.name}: Using default Braze SDK version '#{braze_kit}'"
   end
   
   if defined?($RudderSDKVersion)
@@ -37,5 +37,5 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   end
 
   s.dependency 'Rudder', rudder_sdk_version
-  s.dependency 'Appboy-iOS-SDK', appboy_sdk_version
+  s.dependency 'BrazeKit', braze_kit
 end

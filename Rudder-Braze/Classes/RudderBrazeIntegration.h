@@ -6,15 +6,7 @@
 
 #import <Foundation/Foundation.h>
 
-#if defined(__has_include) && __has_include(<Appboy_iOS_SDK/AppboyKit.h>)
-#import <Appboy_iOS_SDK/AppboyKit.h>
-#import <Appboy_iOS_SDK/ABKUser.h>
-#import <Appboy_iOS_SDK/ABKAttributionData.h>
-#else
-#import "Appboy-iOS-SDK/AppboyKit.h"
-#import "Appboy-iOS-SDK/ABKUser.h"
-#import "Appboy-iOS-SDK/ABKAttributionData.h"
-#endif
+@import BrazeKit;
 #import <Rudder/Rudder.h>
  
 NS_ASSUME_NONNULL_BEGIN
@@ -37,6 +29,7 @@ typedef enum {
 
 @interface RudderBrazeIntegration : NSObject<RSIntegration> {
     ConnectionMode connectionMode;
+    Braze *braze;
 }
 
 @property (nonatomic, strong) NSDictionary *config;
