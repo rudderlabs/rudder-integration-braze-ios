@@ -25,10 +25,9 @@
             [RSLogger logError:@"API Token is invalid. Aborting Braze SDK initalisation."];
             return nil;
         }
-        
-        NSMutableDictionary *appboyOptions = [[NSMutableDictionary alloc] init];
-        NSString *dataCenter = [config objectForKey:@"dataCenter"];
+
         NSString *brazeEndPoint;
+        NSString *dataCenter = [config objectForKey:@"dataCenter"];
         if ((dataCenter && [dataCenter length] != 0)) {
             NSString *customEndpoint = [dataCenter stringByTrimmingCharactersInSet:
                                         [NSCharacterSet whitespaceAndNewlineCharacterSet]];
@@ -81,12 +80,7 @@
 
         self->braze = [[Braze alloc] initWithConfiguration:configuration];
     }
-    
-    if (self->braze != nil) {
-        return self;
-    } else {
-        return nil;
-    }
+    return self;
 }
 
 - (NSString *) getExternalId: (RSMessage *) message {
@@ -177,6 +171,7 @@
         if ([message.context.traits[@"phone"] isKindOfClass:[NSString class]]) {
             NSString *phone = [self needUpdate:@"phone" withMessage:message];
             if (phone != nil) {
+                [self->braze.user setPhoneNumber:phone];
                 self->braze.user.phone = phone;
                 [RSLogger logInfo:@"Identify: Braze  phone"];
             }
