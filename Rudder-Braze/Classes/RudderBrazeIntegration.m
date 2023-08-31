@@ -388,6 +388,47 @@
     }
 }
 
+#pragma mark - Push Notification support
+
+// Refer to the Braze doc: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#manual-push-integration
+
+// - Register the device token with Braze
+
+-(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [self->braze.notifications registerDeviceToken:deviceToken];
+    [RSLogger logInfo:@"Braze registerDeviceToken:"];
+}
+
+// - Add support for silent notification
+
+- (void)didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    // As asked in the Braze doc: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#step-3-enable-push-handling, push integration code is called in application’s main thread.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL processedByBraze = self->braze != nil && [self->braze.notifications handleBackgroundNotificationWithUserInfo:userInfo fetchCompletionHandler:completionHandler];
+        if (processedByBraze) {
+            return;
+        }
+        
+        completionHandler(UIBackgroundFetchResultNoData);
+        [RSLogger logInfo:@"Braze didReceiveRemoteNotification:fetchCompletionHandler:"];
+    });
+}
+
+// - Add support for push notifications
+
+- (void)didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    // As asked in the Braze doc: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#step-3-enable-push-handling, push integration code is called in application’s main thread.
+    dispatch_async(dispatch_get_main_queue(), ^{
+        BOOL processedByBraze = self->braze != nil && [self->braze.notifications handleUserNotificationWithResponse:response withCompletionHandler:completionHandler];
+        if (processedByBraze) {
+            return;
+        }
+        
+        completionHandler();
+        [RSLogger logInfo:@"Braze didReceiveNotificationResponse:withCompletionHandler:"];
+    });
+}
+
 @end
 
 @implementation BrazePurchase

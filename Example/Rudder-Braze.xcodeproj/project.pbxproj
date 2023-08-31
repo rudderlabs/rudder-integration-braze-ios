@@ -23,6 +23,7 @@
 		6003F5BC195388D20070C39A /* Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 6003F5BB195388D20070C39A /* Tests.m */; };
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
+		8CBF2B682AA1045600A58EFF /* ExamplePush.apns in Resources */ = {isa = PBXBuildFile; fileRef = 8CBF2B672AA1045600A58EFF /* ExamplePush.apns */; };
 		EDA2C5C029C4339000B7FF42 /* SampleRudderConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDA2C5BD29C4339000B7FF42 /* SampleRudderConfig.plist */; };
 		EDA2C5C429C4341D00B7FF42 /* RudderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA2C5C329C4341D00B7FF42 /* RudderConfig.swift */; };
 /* End PBXBuildFile section */
@@ -59,6 +60,8 @@
 		606FC2411953D9B200FFA9A0 /* Tests-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Tests-Prefix.pch"; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		8CBF2B662AA0ED7A00A58EFF /* Rudder-Braze_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Rudder-Braze_Example.entitlements"; sourceTree = "<group>"; };
+		8CBF2B672AA1045600A58EFF /* ExamplePush.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = ExamplePush.apns; sourceTree = "<group>"; };
 		9D41BA55C48AAEED1267EB26 /* Rudder-Braze.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "Rudder-Braze.podspec"; path = "../Rudder-Braze.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		ADD8CB17E8371CF146826A92 /* libPods-Rudder-Braze_Example.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-Rudder-Braze_Example.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA3AB6DAB2233FE3AB2FF006 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
@@ -111,6 +114,7 @@
 		6003F581195388D10070C39A = {
 			isa = PBXGroup;
 			children = (
+				8CBF2B662AA0ED7A00A58EFF /* Rudder-Braze_Example.entitlements */,
 				60FF7A9C1954A5C5007DD14C /* Podspec Metadata */,
 				6003F593195388D20070C39A /* Rudder-Braze */,
 				6003F5B5195388D20070C39A /* Tests */,
@@ -144,6 +148,7 @@
 		6003F593195388D20070C39A /* Rudder-Braze */ = {
 			isa = PBXGroup;
 			children = (
+				8CBF2B672AA1045600A58EFF /* ExamplePush.apns */,
 				EDA2C5BB29C4339000B7FF42 /* RudderConfig */,
 				EDA2C5C229C4341C00B7FF42 /* Rudder-Braze_Example-Bridging-Header.h */,
 				6003F59C195388D20070C39A /* RUDDERAppDelegate.h */,
@@ -297,8 +302,9 @@
 				ORGANIZATIONNAME = arnab;
 				TargetAttributes = {
 					6003F589195388D20070C39A = {
-						DevelopmentTeam = GTGKNDBD23;
+						DevelopmentTeam = WPX9KRKA8B;
 						LastSwiftMigration = 1420;
+						ProvisioningStyle = Automatic;
 					};
 					6003F5AD195388D20070C39A = {
 						TestTargetID = 6003F589195388D20070C39A;
@@ -332,6 +338,7 @@
 			files = (
 				873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */,
 				EDA2C5C029C4339000B7FF42 /* SampleRudderConfig.plist in Resources */,
+				8CBF2B682AA1045600A58EFF /* ExamplePush.apns in Resources */,
 				71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */,
 				6003F5A9195388D20070C39A /* Images.xcassets in Resources */,
 				6003F598195388D20070C39A /* InfoPlist.strings in Resources */,
@@ -556,14 +563,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = GTGKNDBD23;
+				CODE_SIGN_ENTITLEMENTS = "Rudder-Braze_Example.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = WPX9KRKA8B;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Rudder-Braze/Rudder-Braze-Prefix.pch";
 				INFOPLIST_FILE = "Rudder-Braze/Rudder-Braze-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = com.torpedolabs.wynn.wscci.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudderstack.braze;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Rudder-Braze/Rudder-Braze_Example-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
@@ -577,14 +588,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				DEVELOPMENT_TEAM = GTGKNDBD23;
+				CODE_SIGN_ENTITLEMENTS = "Rudder-Braze_Example.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = WPX9KRKA8B;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Rudder-Braze/Rudder-Braze-Prefix.pch";
 				INFOPLIST_FILE = "Rudder-Braze/Rudder-Braze-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = com.torpedolabs.wynn.wscci.dev;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudderstack.braze;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Rudder-Braze/Rudder-Braze_Example-Bridging-Header.h";
 				SWIFT_VERSION = 4.0;
 				WRAPPER_EXTENSION = app;

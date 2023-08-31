@@ -17,6 +17,8 @@ extern NSString *const RSBrazeExternalIdKey;
 
 + (instancetype) instance;
 
+@property RudderBrazeIntegration * __nullable integration;
+
 @end
 
 NS_ASSUME_NONNULL_END

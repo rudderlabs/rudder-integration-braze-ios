@@ -9,8 +9,9 @@
 
 @import UIKit;
 @import Foundation;
+@import UserNotifications;
 
-@interface RUDDERAppDelegate : UIResponder <UIApplicationDelegate>
+@interface RUDDERAppDelegate : UIResponder <UIApplicationDelegate, UNUserNotificationCenterDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

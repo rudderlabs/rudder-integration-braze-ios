@@ -28,6 +28,82 @@ RSClient *rudderClient = [RSClient getInstance:WRITE_KEY config:[configBuilder b
 
 Follow the steps from the [RudderStack iOS SDK](https://github.com/rudderlabs/rudder-sdk-ios).
 
+## Sending push notification events
+
+To send your push notification events to Braze, follow these steps:
+
+1. Follow this [Braze](https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#push-notification-certificate) guide to generate the `Push Notification Certificate`.
+
+2. Add the following code to the `application:didFinishLaunchingWithOptions:` method of your app delegate.
+
+```
+dispatch_async(dispatch_get_main_queue(), ^{
+    [[UIApplication sharedApplication] registerForRemoteNotifications];
+
+    UNUserNotificationCenter *center = UNUserNotificationCenter.currentNotificationCenter;
+    [center setNotificationCategories:BRZNotifications.categories];
+    center.delegate = self;
+    UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionSound | UNAuthorizationOptionBadge;
+    if (@available(iOS 12.0, *)) {
+        options = options | UNAuthorizationOptionProvisional;
+    }
+    [center requestAuthorizationWithOptions:options
+                          completionHandler:^(BOOL granted, NSError *_Nullable error) {
+        NSLog(@"Notification authorization, granted: %d, "
+              @"error: %@)",
+              granted, error);
+    }];
+});
+```
+
+3. Add these handlers for the tokens and push notifications:
+
+```
+// - Register the device token with Braze
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    [self waitForBrazeSDKToInit:10.f];
+    if ([RudderBrazeFactory instance].integration) {
+        [[RudderBrazeFactory instance].integration didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
+    }
+}
+
+-(void)waitForBrazeSDKToInit:(NSTimeInterval)timeInterval {
+    if ([RudderBrazeFactory instance].integration == nil) {
+        [NSThread sleepForTimeInterval:timeInterval];
+    }
+}
+
+// - Add support for silent notification
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler: (void (^)(UIBackgroundFetchResult))completionHandler {
+    if ([RudderBrazeFactory instance].integration) {
+        [[RudderBrazeFactory instance].integration didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
+    }
+}
+
+// - Add support for push notifications
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
+    if ([RudderBrazeFactory instance].integration) {
+        [[RudderBrazeFactory instance].integration didReceiveNotificationResponse:response withCompletionHandler:completionHandler];
+    }
+}
+
+// - Add support for displaying push notification when the app is currently running in the foreground
+
+- (void)userNotificationCenter:(UNUserNotificationCenter *)center willPresentNotification:(UNNotification *)notification withCompletionHandler: (void (^)(UNNotificationPresentationOptions))completionHandler {
+    if (@available(iOS 14, *)) {
+        completionHandler(UNNotificationPresentationOptionList |
+                          UNNotificationPresentationOptionBanner);
+    } else {
+        completionHandler(UNNotificationPresentationOptionAlert);
+    }
+}
+```
+
+Refer to the [Rudder sample app](https://github.com/rudderlabs/rudder-integration-braze-ios/blob/master/Example/Rudder-Braze/RUDDERAppDelegate.m) for implementation detail.
+
 ## Contact Us
 
 If you come across any issues while configuring or using this integration, please feel free to start a conversation on our [Slack](https://resources.rudderstack.com/join-rudderstack-slack) channel. We will be happy to help you.

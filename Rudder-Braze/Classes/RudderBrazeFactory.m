@@ -26,7 +26,8 @@ NSString *const RSBrazeKey = @"Braze";
 }
 
 - (id <RSIntegration>) initiate: (NSDictionary*) config client:(RSClient*) client rudderConfig:(nonnull RSConfig *)rudderConfig{
-    return [[RudderBrazeIntegration alloc] initWithConfig:config withAnalytics:client rudderConfig: rudderConfig];
+    self.integration = [[RudderBrazeIntegration alloc] initWithConfig:config withAnalytics:client rudderConfig: rudderConfig];
+    return self.integration;
 }
 
 @end

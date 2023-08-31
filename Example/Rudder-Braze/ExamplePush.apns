@@ -1,0 +1,8 @@
+{
+    "Simulator Target Bundle": "com.rudderstack.braze",
+    "aps": {
+        "alert": "Push Notification Test",
+        "sound": "default",
+        "badge": 1
+    }
+}

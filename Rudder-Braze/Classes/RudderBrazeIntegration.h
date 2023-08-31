@@ -39,6 +39,9 @@ typedef enum {
 
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig ;
 
+-(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+- (void)didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+- (void)didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler;
 @end
 
 NS_ASSUME_NONNULL_END
