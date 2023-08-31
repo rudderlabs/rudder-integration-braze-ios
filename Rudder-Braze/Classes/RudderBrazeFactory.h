@@ -17,11 +17,6 @@ extern NSString *const RSBrazeExternalIdKey;
 
 + (instancetype) instance;
 
-- (void) putLaunchOptions:(NSDictionary *)launchOpts;
-- (void) putRemoteNotification:(NSDictionary *)remoteNotif;
-- (void) resetRemoteNotification;
-- (NSDictionary *) getPushPayload ;
-
 @end
 
 NS_ASSUME_NONNULL_END
