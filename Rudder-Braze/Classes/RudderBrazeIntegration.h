@@ -40,7 +40,9 @@ typedef enum {
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig ;
 
 -(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
+// Following the guidance provided in the Braze documentation at https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#step-3-enable-push-handling, it is recommended to invoke the push integration code within the main thread of the application.
 - (void)didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler;
+// Following the guidance provided in the Braze documentation at https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#step-3-enable-push-handling, it is recommended to invoke the push integration code within the main thread of the application.
 - (void)didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler;
 @end
 
