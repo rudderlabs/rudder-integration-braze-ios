@@ -56,9 +56,10 @@ static Braze *braze;
 }
 
 -(void) configureIAM {
-    // Set up IAM (In App Messaging)
+    // Set up Braze IAM (In App Messaging)
     BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
     braze.inAppMessagePresenter = inAppMessageUI;
+    // This explicit identify call to Braze is necessary to make configure the IAM.
     [braze changeUser:@"2d31d085-4d93-4126-b2b3-94e651810673"];
     [[RSClient getInstance] identify:@"2d31d085-4d93-4126-b2b3-94e651810673"];
 }
