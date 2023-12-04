@@ -29,7 +29,6 @@ typedef enum {
 
 @interface RudderBrazeIntegration : NSObject<RSIntegration> {
     ConnectionMode connectionMode;
-    Braze *braze;
 }
 
 @property (nonatomic, strong) NSDictionary *config;
@@ -38,6 +37,8 @@ typedef enum {
 @property (nonatomic, strong) RSMessage *previousIdentifyElement;
 
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig ;
++ (void)getBrazeInstance:(void (^)(Braze *brazeInstance))completion;
+
 
 -(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken;
 // Following the guidance provided in the Braze documentation at https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/push_notifications/integration/#step-3-enable-push-handling, it is recommended to invoke the push integration code within the main thread of the application.
