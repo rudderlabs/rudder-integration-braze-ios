@@ -1,16 +1,20 @@
 PODS:
-  - BrazeKit (6.6.0)
+  - BrazeKit (6.6.1)
+  - BrazeUI (6.6.1):
+    - BrazeKit (= 6.6.1)
   - Rudder (1.17.0)
-  - Rudder-Braze (1.2.0):
+  - Rudder-Braze (1.3.0):
     - BrazeKit (~> 6.6.0)
     - Rudder (~> 1.12)
 
 DEPENDENCIES:
+  - BrazeUI
   - Rudder-Braze (from `../`)
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - BrazeKit
+    - BrazeUI
     - Rudder
 
 EXTERNAL SOURCES:
@@ -18,10 +22,11 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  BrazeKit: 3c25fd2317ef39059c7305074c3662971f6373cc
+  BrazeKit: 7199d564cd3c90842b11a12ff11b99d0dbbb2579
+  BrazeUI: 6f85e1861f96623e520a3af91d2eaf82faf6118c
   Rudder: 3f4ab09638452282a22b96a388b54132dcd3fca8
-  Rudder-Braze: 62c398e51ab4e66d00cf69c95e59d58cdb4aad34
+  Rudder-Braze: a1b41927b91b067f242c5576f6157e0cea9e59a2
 
-PODFILE CHECKSUM: 3a55374ddc967c0c098f9b411fb2311d95064e0c
+PODFILE CHECKSUM: 3612ddeb3ca2409c50b61623c21d9adc0f7d19c2
 
 COCOAPODS: 1.11.3

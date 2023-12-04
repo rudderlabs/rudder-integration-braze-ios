@@ -12,12 +12,26 @@
 #import "Rudder_Braze_Example-Swift.h"
 #import "RudderBrazeIntegration.h"
 #import <UserNotifications/UserNotifications.h>
+@import BrazeUI;
 
 @implementation RUDDERAppDelegate
+
+static Braze *braze;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     // Override point for customization after application launch.
+    
+    // Setup In App Messaging
+    [RudderBrazeIntegration getBrazeInstance:^(Braze * _Nullable brazeInstance) {
+        if (brazeInstance != nil) {
+            braze = brazeInstance;
+            [self configureIAM];
+        } else {
+            NSLog(@"Error getting Braze instance.");
+        }
+    }];
+
     
     /// Copy the `SampleRudderConfig.plist` and rename it to`RudderConfig.plist` on the same directory.
     /// Update the values as per your need.
@@ -39,6 +53,14 @@
         }
     }
     return YES;
+}
+
+-(void) configureIAM {
+    // Set up IAM (In App Messaging)
+    BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
+    braze.inAppMessagePresenter = inAppMessageUI;
+    [braze changeUser:@"2d31d085-4d93-4126-b2b3-94e651810673"];
+    [[RSClient getInstance] identify:@"2d31d085-4d93-4126-b2b3-94e651810673"];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
