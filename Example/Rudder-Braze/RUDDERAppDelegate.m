@@ -12,8 +12,11 @@
 #import "Rudder_Braze_Example-Swift.h"
 #import "RudderBrazeIntegration.h"
 #import <UserNotifications/UserNotifications.h>
+@import BrazeUI;
 
 @implementation RUDDERAppDelegate
+
+static Braze *braze;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
@@ -35,10 +38,29 @@
             [configBuilder withSleepTimeOut:3];
             [RSClient getInstance:rudderConfig.WRITE_KEY config:[configBuilder build]];
             
+            // TODO: To be uncommented, post the iOS-SDK release containing this API changes
+//            [[RSClient getInstance] onIntegrationReady:@"Braze" withCallback:^(NSObject *brazeInstance) {
+//                if (brazeInstance && [brazeInstance isKindOfClass:[Braze class]]) {
+//                    braze = (Braze *)brazeInstance;
+//                    [self configureIAM];
+//                } else {
+//                    NSLog(@"Error getting Braze instance.");
+//                }
+//            }];
+            
             [self registerForPushNotifications:application];
         }
     }
     return YES;
+}
+
+-(void) configureIAM {
+    // Set up Braze IAM (In App Messaging)
+    BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
+    braze.inAppMessagePresenter = inAppMessageUI;
+    // This explicit identify call to Braze is necessary to configure the IAM.
+    [braze changeUser:@"2d31d085-4d93-4126-b2b3-94e651810673"];
+    [[RSClient getInstance] identify:@"2d31d085-4d93-4126-b2b3-94e651810673"];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

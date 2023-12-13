@@ -29,7 +29,6 @@ typedef enum {
 
 @interface RudderBrazeIntegration : NSObject<RSIntegration> {
     ConnectionMode connectionMode;
-    Braze *braze;
 }
 
 @property (nonatomic, strong) NSDictionary *config;
