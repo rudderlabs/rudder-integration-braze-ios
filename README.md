@@ -131,7 +131,7 @@ pod install
 }];
 ```
 
-4. Add the ```configureIAM``` method in the ```AppDelefate.m``` file:
+5. Add the ```configureIAM``` method in the ```AppDelefate.m``` file:
 ```
 -(void) configureIAM {
     // Set up Braze IAM (In App Messaging)
