@@ -11,7 +11,7 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 2. Rudder-Braze is available through [CocoaPods](https://cocoapods.org). To install it, simply add the following line to your Podfile:
 
 ```ruby
-pod 'Rudder-Braze', '1.0.4'
+pod 'Rudder-Braze', '1.4.0'
 ```
 
 ## Initialize ```RSClient```
@@ -101,6 +101,48 @@ dispatch_async(dispatch_get_main_queue(), ^{
     }
 }
 ```
+
+## Sending In App Messaging events
+
+1. Add the following line to your ```Podfile```:
+```ruby
+pod 'BrazeUI'
+```
+
+2. To install the Braze SDK CocoaPods, navigate to the directory of your Xcode app project within your terminal and run the following command:
+```
+pod install
+```
+
+3. Import the BrazeUI SDK in your ```AppDelegate.m``` file:
+```
+@import BrazeUI;
+```
+
+4. Just after the ```Rudder iOS``` SDK initialisation code snippet, add below code in your ```AppDelegate.m``` file:
+```
+[[RSClient getInstance] onIntegrationReady:@"Braze" withCallback:^(NSObject *brazeInstance) {
+    if (brazeInstance && [brazeInstance isKindOfClass:[Braze class]]) {
+        braze = (Braze *)brazeInstance;
+        [self configureIAM];
+    } else {
+        NSLog(@"Error getting Braze instance.");
+    }
+}];
+```
+
+4. Add the ```configureIAM``` method in the ```AppDelefate.m``` file:
+```
+-(void) configureIAM {
+    // Set up Braze IAM (In App Messaging)
+    BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
+    braze.inAppMessagePresenter = inAppMessageUI;
+    // This explicit identify call to Braze is necessary to configure the IAM.
+    [braze changeUser:@"<userId>"];
+    [[RSClient getInstance] identify:@"<userId>"];
+}
+```
+
 
 Refer to the [Rudder sample app](https://github.com/rudderlabs/rudder-integration-braze-ios/blob/master/Example/Rudder-Braze/RUDDERAppDelegate.m) for implementation detail.
 
