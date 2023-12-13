@@ -137,9 +137,6 @@ pod install
     // Set up Braze IAM (In App Messaging)
     BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
     braze.inAppMessagePresenter = inAppMessageUI;
-    // This explicit identify call to Braze is necessary to configure the IAM.
-    [braze changeUser:@"<userId>"];
-    [[RSClient getInstance] identify:@"<userId>"];
 }
 ```
 
