@@ -119,7 +119,12 @@ pod install
 @import BrazeUI;
 ```
 
-4. Just after the ```Rudder iOS``` SDK initialisation code snippet, add below code in your ```AppDelegate.m``` file:
+4. Next, add a static variable to your ```AppDelegate.m``` file to keep a reference to the Braze instance throughout your application’s lifetime:
+```
+static Braze *braze;
+```
+
+5. Just after the ```Rudder iOS``` SDK initialisation code snippet, add below code in your ```AppDelegate.m``` file:
 ```
 [[RSClient getInstance] onIntegrationReady:@"Braze" withCallback:^(NSObject *brazeInstance) {
     if (brazeInstance && [brazeInstance isKindOfClass:[Braze class]]) {
@@ -131,15 +136,15 @@ pod install
 }];
 ```
 
-5. Add the ```configureIAM``` method in the ```AppDelefate.m``` file:
+6. Add the ```configureIAM``` method in the ```AppDelefate.m``` file:
 ```
 -(void) configureIAM {
-    // Set up Braze IAM (In App Messaging)
+    // Refer here: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/in-app_messaging/customization/setting_delegates/#setting-the-in-app-message-delegate
     BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
     braze.inAppMessagePresenter = inAppMessageUI;
 }
 ```
-
+**Note:** In-App Message support for iOS device mode integration is supported from `Rudder-Braze` version `1.4.0` onwards.
 
 Refer to the [Rudder sample app](https://github.com/rudderlabs/rudder-integration-braze-ios/blob/master/Example/Rudder-Braze/RUDDERAppDelegate.m) for implementation detail.
 

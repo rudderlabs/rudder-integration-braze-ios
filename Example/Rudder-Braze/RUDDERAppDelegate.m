@@ -16,6 +16,7 @@
 
 @implementation RUDDERAppDelegate
 
+// Refer here: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/initial_sdk_setup/completing_integration/#update-your-app-delegate
 static Braze *braze;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -55,7 +56,7 @@ static Braze *braze;
 }
 
 -(void) configureIAM {
-    // Set up Braze IAM (In App Messaging)
+    // Refer here: https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/in-app_messaging/customization/setting_delegates/#setting-the-in-app-message-delegate
     BrazeInAppMessageUI *inAppMessageUI = [[BrazeInAppMessageUI alloc] init];
     braze.inAppMessagePresenter = inAppMessageUI;
     // Make Identify event so that Braze could identify the device and send the IAM.
