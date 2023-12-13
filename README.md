@@ -102,7 +102,7 @@ dispatch_async(dispatch_get_main_queue(), ^{
 }
 ```
 
-## Sending In App Messaging events
+## Sending In-App Message events
 
 1. Add the following line to your ```Podfile```:
 ```ruby
