@@ -3,7 +3,7 @@ require 'json'
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
 braze_kit = '~> 6.6.0'
-rudder_sdk_version = '~> 1.12' # TODO: Update the minimum version of the iOS-SDK, post iOS-SDK release
+rudder_sdk_version = '~> 1.24' # TODO: Update the minimum version of the iOS-SDK, post iOS-SDK release
 
 Pod::Spec.new do |s|
   s.name             = 'Rudder-Braze'

@@ -83,10 +83,9 @@ static Braze *rsBrazeInstance;
     return self;
 }
 
-// TODO: To be uncommented, post the iOS-SDK release containing this API changes
-//- (id) getUnderlyingInstance {
-//    return rsBrazeInstance;
-//}
+- (id) getUnderlyingInstance {
+    return rsBrazeInstance;
+}
 
 - (NSString *) getExternalId: (RSMessage *) message {
     NSArray* externalIds = message.context.externalIds;

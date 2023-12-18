@@ -31,23 +31,25 @@ static Braze *braze;
         NSURL *url = [NSURL fileURLWithPath:path];
         RudderConfig *rudderConfig = [RudderConfig createFrom:url];
         if (rudderConfig != nil) {
+            id<RSIntegrationFactory> brazeFactoryInstance = [RudderBrazeFactory instance];
+            
             RSConfigBuilder *configBuilder = [[RSConfigBuilder alloc] init];
             [configBuilder withDataPlaneUrl:rudderConfig.DEV_DATA_PLANE_URL];
             [configBuilder withLoglevel:RSLogLevelVerbose];
-            [configBuilder withFactory:[RudderBrazeFactory instance]];
+            [configBuilder withFactory:brazeFactoryInstance];
             [configBuilder withTrackLifecycleEvens:NO];
             [configBuilder withSleepTimeOut:3];
             [RSClient getInstance:rudderConfig.WRITE_KEY config:[configBuilder build]];
             
-            // TODO: To be uncommented, post the iOS-SDK release containing this API changes
-//            [[RSClient getInstance] onIntegrationReady:@"Braze" withCallback:^(NSObject *brazeInstance) {
-//                if (brazeInstance && [brazeInstance isKindOfClass:[Braze class]]) {
-//                    braze = (Braze *)brazeInstance;
-//                    [self configureIAM];
-//                } else {
-//                    NSLog(@"Error getting Braze instance.");
-//                }
-//            }];
+            // Braze In-App Message
+            [[RSClient getInstance] onIntegrationReady:brazeFactoryInstance withCallback:^(NSObject *brazeInstance) {
+                if (brazeInstance && [brazeInstance isKindOfClass:[Braze class]]) {
+                    braze = (Braze *)brazeInstance;
+                    [self configureIAM];
+                } else {
+                    NSLog(@"Error getting Braze instance.");
+                }
+            }];
             
             [self registerForPushNotifications:application];
         }
