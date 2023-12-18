@@ -109,7 +109,7 @@ dispatch_async(dispatch_get_main_queue(), ^{
 pod 'BrazeUI'
 ```
 
-2. To install the Braze SDK CocoaPods, navigate to the directory of your Xcode app project within your terminal and run the following command:
+2. Next, navigate to the directory of your Xcode app project within your terminal and run the following command:
 ```
 pod install
 ```
@@ -126,7 +126,8 @@ static Braze *braze;
 
 5. Just after the ```Rudder iOS``` SDK initialisation code snippet, add below code in your ```AppDelegate.m``` file:
 ```
-[[RSClient getInstance] onIntegrationReady:@"Braze" withCallback:^(NSObject *brazeInstance) {
+id<RSIntegrationFactory> brazeFactoryInstance = [RudderBrazeFactory instance];
+[[RSClient getInstance] onIntegrationReady:brazeFactoryInstance withCallback:^(NSObject *brazeInstance) {
     if (brazeInstance && [brazeInstance isKindOfClass:[Braze class]]) {
         braze = (Braze *)brazeInstance;
         [self configureIAM];
