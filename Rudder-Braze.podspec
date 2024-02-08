@@ -14,7 +14,7 @@ Rudder is a platform for collecting, storing and routing customer event data to 
                        DESC
 
   s.homepage         = 'https://github.com/rudderlabs/rudder-integration-braze-ios'
-  s.license          = { :type => "Apache", :file => "LICENSE.md" }
+  s.license          = { :type => "ELv2", :file => "LICENSE.md" }
   s.author           = { 'RudderStack' => 'arnab@rudderstack.com' }
   s.source           = { :git => 'https://github.com/rudderlabs/rudder-integration-braze-ios.git', :tag => "v#{s.version}" }
   s.static_framework = true
