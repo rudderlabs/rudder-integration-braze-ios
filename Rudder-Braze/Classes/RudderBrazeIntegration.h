@@ -7,7 +7,7 @@
 #import <Foundation/Foundation.h>
 
 @import BrazeKit;
-#import <Rudder/Rudder.h>
+@import Rudder;
  
 NS_ASSUME_NONNULL_BEGIN
 

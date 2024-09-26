@@ -7,12 +7,12 @@
 //
 
 #import "RUDDERAppDelegate.h"
-#import <Rudder/Rudder.h>
 #import "RudderBrazeFactory.h"
 #import "Rudder_Braze_Example-Swift.h"
 #import "RudderBrazeIntegration.h"
 #import <UserNotifications/UserNotifications.h>
 @import BrazeUI;
+@import Rudder;
 
 @implementation RUDDERAppDelegate
 

@@ -7,7 +7,7 @@
 //
 
 #import "RUDDERViewController.h"
-#import <Rudder/Rudder.h>
+@import Rudder;
 
 @interface RUDDERViewController ()
 
