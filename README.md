@@ -8,11 +8,31 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 
 1. Add [Braze](https://www.braze.com) as a destination in the [Dashboard](https://app.rudderstack.com/) and define ```REST api key```, ```App Key``` and ```Data Center Instance```
 
-2. Rudder-Braze is available through [CocoaPods](https://cocoapods.org). To install it, simply add the following line to your Podfile:
+2. Rudder-Braze is available through [CocoaPods](https://cocoapods.org) and [Swift Package Manager (SPM)](https://www.swift.org/documentation/package-manager/).
+
+## Cocoapods
+Add the following line to your Podfile and followed by `pod install`:
 
 ```ruby
 pod 'Rudder-Braze', '2.1.0'
 ```
+
+## Swift Package Manager (SPM)
+You can also add the SDK via Swift Package Mangaer.
+
+* Go to **File** -> **Add Package Dependencies...**, as shown:
+
+![add_package](screenshots/add_package.png)
+
+* Enter the package repository (`https://github.com/rudderlabs/rudder-integration-braze-ios`) in the search bar.
+
+*  In **Dependency Rule**, select **Exact Version** and enter latest as the value, as shown:
+
+![add_package](screenshots/set_dependency.png)
+
+* Select the project to which you want to add the package.
+
+* Finally, click on **Add Package**.
 
 ## Initialize ```RSClient```
 
