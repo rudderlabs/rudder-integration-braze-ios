@@ -126,13 +126,17 @@ static Braze *rsBrazeInstance;
         
         NSString *prevUserId = self.previousIdentifyElement.userId;
         NSString *currUserId = message.userId;
-        
-        if ((prevExternalId == nil && currExternalId != nil) || (![currExternalId isEqual:prevExternalId])) {
-            [rsBrazeInstance changeUser:currExternalId];
-            [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
-        } else if ((prevUserId == nil && currUserId != nil) || (![currUserId isEqual:prevUserId])) {
-            [rsBrazeInstance changeUser:currUserId];
-            [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
+
+        if (currExternalId) {
+            if (prevExternalId == nil || ![currExternalId isEqualToString:prevExternalId]) {
+                [rsBrazeInstance changeUser:currExternalId];
+                [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
+            }
+        } else if (currUserId) {
+            if (prevUserId == nil || ![currUserId isEqualToString:prevUserId]) {
+                [rsBrazeInstance changeUser:currUserId];
+                [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
+            }
         }
         
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
