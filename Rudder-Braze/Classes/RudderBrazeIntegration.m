@@ -78,7 +78,7 @@ static Braze *rsBrazeInstance;
                 break;
         }
 
-       rsBrazeInstance = [[Braze alloc] initWithConfiguration:configuration];
+        rsBrazeInstance = [[Braze alloc] initWithConfiguration:configuration];
     }
     return self;
 }
