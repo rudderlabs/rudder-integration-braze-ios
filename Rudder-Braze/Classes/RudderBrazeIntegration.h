@@ -35,6 +35,7 @@ typedef enum {
 @property (nonatomic, strong) RSClient *client;
 @property (nonatomic) BOOL supportDedup;
 @property (nonatomic, strong) RSMessage *previousIdentifyElement;
+@property (nonatomic) NSString *prevExternalId;
 
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig ;
 

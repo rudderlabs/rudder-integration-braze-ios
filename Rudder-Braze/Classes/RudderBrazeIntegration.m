@@ -78,7 +78,7 @@ static Braze *rsBrazeInstance;
                 break;
         }
 
-        rsBrazeInstance = [[Braze alloc] initWithConfiguration:configuration];
+       rsBrazeInstance = [[Braze alloc] initWithConfiguration:configuration];
     }
     return self;
 }
@@ -121,14 +121,13 @@ static Braze *rsBrazeInstance;
         }
         
         // look for externalIds first
-        NSString *prevExternalId = [self getExternalId:self.previousIdentifyElement];
         NSString *currExternalId = [self getExternalId:message];
         
         NSString *prevUserId = self.previousIdentifyElement.userId;
         NSString *currUserId = message.userId;
 
         if (currExternalId) {
-            if (prevExternalId == nil || ![currExternalId isEqualToString:prevExternalId]) {
+            if (self.prevExternalId == nil || ![currExternalId isEqualToString:self.prevExternalId]) {
                 [rsBrazeInstance changeUser:currExternalId];
                 [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
             }
@@ -138,6 +137,8 @@ static Braze *rsBrazeInstance;
                 [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
             }
         }
+        // As we are unable to make a deep copy of the externalId in the self.previousIdentifyElement, we need the following workaround:
+        self.prevExternalId = currExternalId;
         
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
             NSString *email = [self needUpdate:@"email" withMessage:message];
