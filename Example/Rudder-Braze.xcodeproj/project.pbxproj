@@ -303,7 +303,7 @@
 				ORGANIZATIONNAME = arnab;
 				TargetAttributes = {
 					6003F589195388D20070C39A = {
-						DevelopmentTeam = WPX9KRKA8B;
+						DevelopmentTeam = UCL2K3J73M;
 						LastSwiftMigration = 1420;
 						ProvisioningStyle = Automatic;
 					};
@@ -593,13 +593,13 @@
 				CODE_SIGN_ENTITLEMENTS = "Rudder-Braze_Example.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = WPX9KRKA8B;
+				DEVELOPMENT_TEAM = UCL2K3J73M;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Rudder-Braze/Rudder-Braze-Prefix.pch";
 				INFOPLIST_FILE = "Rudder-Braze/Rudder-Braze-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rudderstack.braze;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudderstack.integration.test.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Rudder-Braze/Rudder-Braze_Example-Bridging-Header.h";
@@ -618,13 +618,13 @@
 				CODE_SIGN_ENTITLEMENTS = "Rudder-Braze_Example.entitlements";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = WPX9KRKA8B;
+				DEVELOPMENT_TEAM = UCL2K3J73M;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "Rudder-Braze/Rudder-Braze-Prefix.pch";
 				INFOPLIST_FILE = "Rudder-Braze/Rudder-Braze-Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MODULE_NAME = ExampleApp;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rudderstack.braze;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rudderstack.integration.test.ios;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "Rudder-Braze/Rudder-Braze_Example-Bridging-Header.h";
