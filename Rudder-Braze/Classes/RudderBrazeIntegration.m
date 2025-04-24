@@ -43,12 +43,16 @@ static Braze *rsBrazeInstance;
                 brazeEndPoint = @"sdk.iad-05.braze.com";
             } else if([@"US-06" isEqualToString:customEndpoint]) {
                 brazeEndPoint = @"sdk.iad-06.braze.com";
+            } else if([@"US-07" isEqualToString:customEndpoint]) {
+                brazeEndPoint = @"sdk.iad-07.braze.com";
             } else if([@"US-08" isEqualToString:customEndpoint]) {
                 brazeEndPoint = @"sdk.iad-08.braze.com";
             } else if([@"EU-01" isEqualToString:customEndpoint]) {
                 brazeEndPoint = @"sdk.fra-01.braze.eu";
             } else if([@"EU-02" isEqualToString:customEndpoint]) {
                 brazeEndPoint = @"sdk.fra-02.braze.eu";
+            } else if([@"AU-01" isEqualToString:customEndpoint]) {
+                brazeEndPoint = @"sdk.au-01.braze.com";
             }
         }
         
