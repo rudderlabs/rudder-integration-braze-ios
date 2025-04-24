@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 4.0.0 (2025-04-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* upgrade braze sdk version to latest 11.1.1
+
+### Features
+
+* add australia and united states regions support ([a48f01f](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/a48f01f1ecea820ccd26342dbfa7d559091171a6))
+* upgrade braze sdk version to latest 11.1.1 ([069b3c4](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/069b3c4c6b5ea41cb159068f53c9fc144515e90b))
+
+
+### Bug Fixes
+
+* merging of anonymous with identified profile ([6decc8a](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/6decc8aec2be14614855ae68ba4c2a8d5db4487d)), closes [#48](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/48)
+
 ## 3.0.0 (2025-03-24)
 
 

@@ -14,7 +14,7 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 Add the following line to your Podfile and followed by `pod install`:
 
 ```ruby
-pod 'Rudder-Braze', '3.0.0'
+pod 'Rudder-Braze', '4.0.0'
 ```
 
 ## Swift Package Manager (SPM)
