@@ -18,7 +18,11 @@ static Braze *rsBrazeInstance;
         self.config = config;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
-        NSString *apiToken = [config objectForKey:@"appKey"];
+
+        // Check if platform-specific key should be used
+        BOOL usePlatformSpecificKeys = [[config objectForKey:@"usePlatformSpecificKeys"] boolValue];
+        NSString *iOSAppKey = [config objectForKey:@"iOSAppKey"];
+        NSString *apiToken = (usePlatformSpecificKeys && iOSAppKey) ? iOSAppKey : [config objectForKey:@"appKey"];
         connectionMode = [self getConnectionMode:config];
         
         if ( [apiToken length] == 0) {
