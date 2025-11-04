@@ -66,7 +66,7 @@ static Braze *rsBrazeInstance;
             }
         }
         
-        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:apiToken
+        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:apiKey
                                                                           endpoint:brazeEndPoint];
         
         // For more details on Braze log level -> https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/initial_sdk_setup/other_sdk_customizations/#braze-log-level
