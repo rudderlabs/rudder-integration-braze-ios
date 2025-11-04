@@ -20,19 +20,19 @@ static Braze *rsBrazeInstance;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
 
         BOOL usePlatformSpecificKeys = [[config objectForKey:@"usePlatformSpecificKeys"] boolValue];
-        NSString *apiToken = @"";
+        NSString *apiKey = @"";
         // Prefer platform-specific key if present and not empty
         if (usePlatformSpecificKeys && [config objectForKey:@"iOSAppKey"]) {
-            apiToken = [config objectForKey:@"iOSAppKey"];
+            apiKey = [config objectForKey:@"iOSAppKey"];
         }
         // Fallback to default app key if platform-specific key is not defined or is empty
-        if ([apiToken length] == 0 && [config objectForKey:@"appKey"]) {
-            apiToken = [config objectForKey:@"appKey"];
+        if ([apiKey length] == 0 && [config objectForKey:@"appKey"]) {
+            apiKey = [config objectForKey:@"appKey"];
         }
         connectionMode = [self getConnectionMode:config];
-        
-        if ( [apiToken length] == 0) {
-            [RSLogger logError:@"API Token is invalid. Aborting Braze SDK initalisation."];
+
+        if ( [apiKey length] == 0) {
+            [RSLogger logError:@"API Key is invalid. Aborting Braze SDK initalisation."];
             return nil;
         }
 
