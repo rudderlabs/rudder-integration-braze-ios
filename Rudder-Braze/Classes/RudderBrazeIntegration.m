@@ -25,7 +25,7 @@ static Braze *rsBrazeInstance;
         if (usePlatformSpecificKeys && [config objectForKey:@"iOSAppKey"]) {
             apiKey = [config objectForKey:@"iOSAppKey"];
         }
-        // Fallback to default app key if platform-specific key is not defined or is empty
+        // Fallback to default app key if either platform-specific key is not present or is set to false
         if ([apiKey length] == 0 && [config objectForKey:@"appKey"]) {
             apiKey = [config objectForKey:@"appKey"];
         }
