@@ -31,7 +31,7 @@ static Braze *rsBrazeInstance;
         }
         connectionMode = [self getConnectionMode:config];
 
-        if ( [apiKey length] == 0) {
+        if ([apiKey length] == 0) {
             [RSLogger logError:@"API Key is invalid. Aborting Braze SDK initalisation."];
             return nil;
         }
