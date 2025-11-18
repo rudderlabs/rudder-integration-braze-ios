@@ -28,7 +28,7 @@ static Braze *rsBrazeInstance;
         // Fallback to default app key if either platform-specific key is not present or is set to false
         if ([apiKey length] == 0 && [config objectForKey:@"appKey"]) {
             if (usePlatformSpecificApiKeys) {
-                [RSLogger logError:@"BrazeIntegration: usePlatformSpecificApiKeys is enabled but iOSApiKey is not configured. Falling back to legacy apiKey."];
+                [RSLogger logError:@"BrazeIntegration: Configured to use platform-specific API keys but Android API key is not valid. Falling back to the default API key."];
             }
             apiKey = [config objectForKey:@"appKey"];
         }
