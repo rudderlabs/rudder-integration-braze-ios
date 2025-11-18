@@ -21,16 +21,20 @@ static Braze *rsBrazeInstance;
 
         BOOL usePlatformSpecificApiKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
         NSString *apiKey = @"";
-        // Prefer platform-specific key if present and not empty
-        if (usePlatformSpecificApiKeys && [config objectForKey:@"iOSApiKey"]) {
-            apiKey = [config objectForKey:@"iOSApiKey"];
-        }
-        // Fallback to default app key if either platform-specific key is not present or is set to false
-        if ([apiKey length] == 0 && [config objectForKey:@"appKey"]) {
-            if (usePlatformSpecificApiKeys) {
-                [RSLogger logError:@"BrazeIntegration: Configured to use platform-specific API keys but Android API key is not valid. Falling back to the default API key."];
-            }
+        // Start with default API key
+        if ([config objectForKey:@"appKey"]) {
             apiKey = [config objectForKey:@"appKey"];
+        }
+
+        // Override with platform-specific key if configured
+        if (usePlatformSpecificApiKeys) {
+            NSString *iOSApiKey = [config objectForKey:@"iOSApiKey"] ?: @"";
+
+            if ([iOSApiKey length] > 0) {
+                apiKey = iOSApiKey;
+            } else {
+                [RSLogger logError:@"BrazeIntegration: Configured to use platform-specific API keys but iOS API key is not valid. Falling back to the default API key."];
+            }
         }
         connectionMode = [self getConnectionMode:config];
 
