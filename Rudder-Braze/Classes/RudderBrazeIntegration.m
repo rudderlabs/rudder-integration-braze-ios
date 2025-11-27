@@ -18,11 +18,28 @@ static Braze *rsBrazeInstance;
         self.config = config;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
-        NSString *apiToken = [config objectForKey:@"appKey"];
+
+        BOOL usePlatformSpecificApiKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
+        NSString *apiKey = @"";
+        // Start with default API key
+        if ([config objectForKey:@"appKey"]) {
+            apiKey = [config objectForKey:@"appKey"];
+        }
+
+        // Override with platform-specific key if configured
+        if (usePlatformSpecificApiKeys) {
+            NSString *iOSApiKey = [config objectForKey:@"iOSApiKey"] ?: @"";
+
+            if ([iOSApiKey length] > 0) {
+                apiKey = iOSApiKey;
+            } else {
+                [RSLogger logError:@"BrazeIntegration: Configured to use platform-specific API keys but iOS API key is not valid. Falling back to the default API key."];
+            }
+        }
         connectionMode = [self getConnectionMode:config];
-        
-        if ( [apiToken length] == 0) {
-            [RSLogger logError:@"API Token is invalid. Aborting Braze SDK initalisation."];
+
+        if ([apiKey length] == 0) {
+            [RSLogger logError:@"API Key is invalid. Aborting Braze SDK initalisation."];
             return nil;
         }
 
@@ -56,7 +73,7 @@ static Braze *rsBrazeInstance;
             }
         }
         
-        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:apiToken
+        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:apiKey
                                                                           endpoint:brazeEndPoint];
         
         // For more details on Braze log level -> https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/initial_sdk_setup/other_sdk_customizations/#braze-log-level
