@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 4.2.0 (2025-11-27)
+
+
+### Features
+
+* **braze:** add support for platform-specific app keys ([#67](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/67)) ([005a53d](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/005a53d731f47d8511c48480d7f6a92a67f5b176))
+
 ## [4.1.0](https://github.com/rudderlabs/rudder-integration-braze-ios/compare/v4.0.0...v4.1.0) (2025-09-17)
 
 
