@@ -6,7 +6,7 @@ More information on RudderStack can be found [here](https://github.com/rudderlab
 
 ## Integrating Braze with RudderStack's iOS SDK
 
-1. Add [Braze](https://www.braze.com) as a destination in the [Dashboard](https://app.rudderstack.com/) and define ```REST api key```, ```App Key``` and ```Data Center Instance```
+1. Add [Braze](https://www.braze.com) as a destination in the [Dashboard](https://app.rudderstack.com/) and define ```REST API key```, ```App Identifier Key``` and ```Data Center Instance```
 
 2. Rudder-Braze is available through [CocoaPods](https://cocoapods.org) and [Swift Package Manager (SPM)](https://www.swift.org/documentation/package-manager/).
 

@@ -19,27 +19,27 @@ static Braze *rsBrazeInstance;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
 
-        BOOL usePlatformSpecificApiKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
-        NSString *apiKey = @"";
-        // Start with default API key
+        BOOL usePlatformSpecificAppIdentifierKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
+        NSString *appIdentifierKey = @"";
+        // Start with default App Identifier Key
         if ([config objectForKey:@"appKey"]) {
-            apiKey = [config objectForKey:@"appKey"];
+            appIdentifierKey = [config objectForKey:@"appKey"];
         }
 
         // Override with platform-specific key if configured
-        if (usePlatformSpecificApiKeys) {
-            NSString *iOSApiKey = [config objectForKey:@"iOSApiKey"] ?: @"";
+        if (usePlatformSpecificAppIdentifierKeys) {
+            NSString *iOSAppIdentifierKey = [config objectForKey:@"iOSApiKey"] ?: @"";
 
-            if ([iOSApiKey length] > 0) {
-                apiKey = iOSApiKey;
+            if ([iOSAppIdentifierKey length] > 0) {
+                appIdentifierKey = iOSAppIdentifierKey;
             } else {
-                [RSLogger logError:@"BrazeIntegration: Configured to use platform-specific API keys but iOS API key is not valid. Falling back to the default API key."];
+                [RSLogger logError:@"BrazeIntegration: Configured to use platform-specific App Identifier Keys but iOS App Identifier Key is not valid. Falling back to the Default App Identifier Key."];
             }
         }
         connectionMode = [self getConnectionMode:config];
 
-        if ([apiKey length] == 0) {
-            [RSLogger logError:@"API Key is invalid. Aborting Braze SDK initalisation."];
+        if ([appIdentifierKey length] == 0) {
+            [RSLogger logError:@"App Identifier Key is invalid. Aborting Braze SDK initialization."];
             return nil;
         }
 
@@ -73,7 +73,7 @@ static Braze *rsBrazeInstance;
             }
         }
         
-        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:apiKey
+        BRZConfiguration *configuration = [[BRZConfiguration alloc] initWithApiKey:appIdentifierKey
                                                                           endpoint:brazeEndPoint];
         
         // For more details on Braze log level -> https://www.braze.com/docs/developer_guide/platform_integration_guides/swift/initial_sdk_setup/other_sdk_customizations/#braze-log-level
