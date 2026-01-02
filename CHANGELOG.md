@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 4.2.1 (2026-01-02)
+
+
+### Bug Fixes
+
+* **braze:** rename API Key to App Identifier Key terminology ([19ccbdd](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/19ccbddac7edfb338ad8a4b1c50beed3d516a908))
+
 ## 4.2.0 (2025-11-27)
 
 
