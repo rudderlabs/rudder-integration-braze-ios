@@ -1,15 +1,15 @@
 PODS:
-  - BrazeKit (12.0.3)
-  - BrazeUI (12.0.3):
-    - BrazeKit (= 12.0.3)
+  - BrazeKit (13.3.0)
+  - BrazeUI (13.3.0):
+    - BrazeKit (= 13.3.0)
   - MetricsReporter (2.0.0):
     - RSCrashReporter (= 1.0.1)
     - RudderKit (= 1.4.0)
   - RSCrashReporter (1.0.1)
   - Rudder (1.31.1):
     - MetricsReporter (= 2.0.0)
-  - Rudder-Braze (4.0.0):
-    - BrazeKit (~> 12.0.0)
+  - Rudder-Braze (4.2.1):
+    - BrazeKit (~> 13.3)
     - Rudder (~> 1.26)
   - RudderKit (1.4.0)
 
@@ -31,12 +31,12 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  BrazeKit: 44fab385edca94faaf96d7ce9f020b9c2ad3505e
-  BrazeUI: 8d107fe48a924d4e34bb8590a465082a822c20f7
+  BrazeKit: 53ac2d77c7d5ab54ab73df75c9058ae89236fc54
+  BrazeUI: 4de47810a95f225e0199cf6ddc9756f9dab662eb
   MetricsReporter: 364b98791e868b10e9d512eb50af28d8c11e5cdb
   RSCrashReporter: 6b8376ac729b0289ebe0908553e5f56d8171f313
   Rudder: 352cb3417238fb84cc083826d9a5a7cc91efaa69
-  Rudder-Braze: 04aac140b914b8b24925b11a3c4a935ba678aa71
+  Rudder-Braze: 03ed5148be07836ac9ee5c1040858f1533120d4c
   RudderKit: f272f9872183946452ac94cd7bb2244a71e6ca8f
 
 PODFILE CHECKSUM: d5cb3999cad3c9449f37674bd32ddede28c1f721
