@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 4.3.0 (2026-01-08)
+
+
+### Features
+
+* update braze ios sdk to version v13.3.0 ([#73](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/73)) ([6b1bc1d](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/6b1bc1dfeeb7c1322ddf420035a7ee3232a351b2))
+
 ### 4.2.1 (2026-01-02)
 
 
