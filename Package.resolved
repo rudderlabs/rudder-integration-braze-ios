@@ -3,10 +3,10 @@
     "pins": [
       {
         "package": "braze-swift-sdk",
-        "repositoryURL": "https://github.com/braze-inc/braze-swift-sdk-prebuilt-static",
+        "repositoryURL": "https://github.com/braze-inc/braze-swift-sdk",
         "state": {
           "branch": null,
-          "revision": "e369c24537be87ac4ebaaeb958397036828b6ede",
+          "revision": "8ed872cbd122f68333928597d2b2d2af52bdceb4",
           "version": "13.3.0"
         }
       },
@@ -44,6 +44,15 @@
           "branch": null,
           "revision": "6fa297b1fa1f8911db17bdc9058df093419ebd15",
           "version": "1.31.1"
+        }
+      },
+      {
+        "package": "SDWebImage",
+        "repositoryURL": "https://github.com/SDWebImage/SDWebImage.git",
+        "state": {
+          "branch": null,
+          "revision": "2de3a496eaf6df9a1312862adcfd54acd73c39c0",
+          "version": "5.21.7"
         }
       }
     ]
