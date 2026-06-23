@@ -38,6 +38,7 @@ typedef enum {
 @property (nonatomic, strong) NSDictionary *config;
 @property (nonatomic, strong) RSClient *client;
 @property (nonatomic) BOOL supportDedup;
+@property (nonatomic) BOOL useRecommendedEcommerceEvents;
 @property (nonatomic, strong) RSMessage *previousIdentifyElement;
 @property (nonatomic) NSString *prevExternalId;
 
