@@ -56,18 +56,21 @@ static NSString *const ACTION_REMOVE = @"remove";
 static NSString *const SOURCE_KEY = @"source";
 static NSString *const SOURCE = @"ios";
 
-// RudderStack ecommerce source keys.
-static NSString *const EC_PRODUCT_ID = @"product_id";
-static NSString *const EC_QUANTITY = @"quantity";
-static NSString *const EC_PRICE = @"price";
-static NSString *const EC_CURRENCY = @"currency";
-static NSString *const EC_PRODUCTS = @"products";
-static NSString *const EC_CART_ID = @"cart_id";
-static NSString *const EC_CHECKOUT_ID = @"checkout_id";
-static NSString *const EC_ORDER_ID = @"order_id";
-static NSString *const EC_TOTAL = @"total";
-static NSString *const EC_REVENUE = @"revenue";
-static NSString *const EC_DISCOUNT = @"discount";
+// RudderStack ecommerce source keys. Keys the SDK exposes come from RSECommerceParamNames
+// (imported via Rudder.h); the rest have no SDK constant and use the RS spec field name.
+#define EC_PRODUCT_ID  KeyProductId
+#define EC_QUANTITY    KeyQuantity
+#define EC_PRICE       KeyPrice
+#define EC_CURRENCY    KeyCurrency
+#define EC_PRODUCTS    KeyProducts
+#define EC_CART_ID     KeyCartId
+#define EC_CHECKOUT_ID KeyCheckoutId
+#define EC_ORDER_ID    KeyOrderId
+#define EC_TOTAL       KeyTotal
+#define EC_REVENUE     KeyRevenue
+#define EC_DISCOUNT    KeyDiscount
+#define EC_REASON      KeyReason
+
 static NSString *const EC_SKU = @"sku";
 static NSString *const EC_NAME = @"name";
 static NSString *const EC_VARIANT = @"variant";
@@ -81,7 +84,6 @@ static NSString *const EC_SUBTOTAL_VALUE = @"subtotal_value";
 static NSString *const EC_DISCOUNTS = @"discounts";
 static NSString *const EC_TOTAL_DISCOUNTS = @"total_discounts";
 static NSString *const EC_CANCEL_REASON = @"cancel_reason";
-static NSString *const EC_REASON = @"reason";
 
 // Braze recommended-event field names.
 static NSString *const BRAZE_PRODUCT_ID = @"product_id";
@@ -159,14 +161,15 @@ static NSString *const BRAZE_METADATA = @"metadata";
 + (NSDictionary<NSString *, RudderBrazeEcommerceEvent *> *)ecommerceEventMapping {
     static NSDictionary *mapping; static dispatch_once_t t;
     dispatch_once(&t, ^{
+        // Keyed off the SDK's RSECommerceEvents names (lowercased for case-insensitive lookup).
         mapping = @{
-            @"product viewed":    [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductViewed brazeEvent:BRAZE_EVENT_PRODUCT_VIEWED action:nil],
-            @"product added":     [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductAdded brazeEvent:BRAZE_EVENT_CART_UPDATED action:ACTION_ADD],
-            @"product removed":   [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductRemoved brazeEvent:BRAZE_EVENT_CART_UPDATED action:ACTION_REMOVE],
-            @"checkout started":  [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeCheckoutStarted brazeEvent:BRAZE_EVENT_CHECKOUT_STARTED action:nil],
-            @"order completed":   [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeOrderCompleted brazeEvent:BRAZE_EVENT_ORDER_PLACED action:nil],
-            @"order refunded":    [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeOrderRefunded brazeEvent:BRAZE_EVENT_ORDER_REFUNDED action:nil],
-            @"order cancelled":   [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeOrderCancelled brazeEvent:BRAZE_EVENT_ORDER_CANCELLED action:nil],
+            [ECommProductViewed lowercaseString]:   [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductViewed brazeEvent:BRAZE_EVENT_PRODUCT_VIEWED action:nil],
+            [ECommProductAdded lowercaseString]:    [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductAdded brazeEvent:BRAZE_EVENT_CART_UPDATED action:ACTION_ADD],
+            [ECommProductRemoved lowercaseString]:  [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductRemoved brazeEvent:BRAZE_EVENT_CART_UPDATED action:ACTION_REMOVE],
+            [ECommCheckoutStarted lowercaseString]: [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeCheckoutStarted brazeEvent:BRAZE_EVENT_CHECKOUT_STARTED action:nil],
+            [ECommOrderCompleted lowercaseString]:  [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeOrderCompleted brazeEvent:BRAZE_EVENT_ORDER_PLACED action:nil],
+            [ECommOrderRefunded lowercaseString]:   [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeOrderRefunded brazeEvent:BRAZE_EVENT_ORDER_REFUNDED action:nil],
+            [ECommOrderCancelled lowercaseString]:  [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeOrderCancelled brazeEvent:BRAZE_EVENT_ORDER_CANCELLED action:nil],
         };
     });
     return mapping;
