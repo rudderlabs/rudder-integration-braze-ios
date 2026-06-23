@@ -43,7 +43,6 @@ typedef NS_ENUM(NSInteger, RudderBrazeEcommerceEventType) {
 
 #pragma mark - Constants
 
-// Braze recommended ecommerce event names (destination side).
 static NSString *const BRAZE_EVENT_PRODUCT_VIEWED = @"ecommerce.product_viewed";
 static NSString *const BRAZE_EVENT_CART_UPDATED = @"ecommerce.cart_updated";
 static NSString *const BRAZE_EVENT_CHECKOUT_STARTED = @"ecommerce.checkout_started";
@@ -51,16 +50,13 @@ static NSString *const BRAZE_EVENT_ORDER_PLACED = @"ecommerce.order_placed";
 static NSString *const BRAZE_EVENT_ORDER_REFUNDED = @"ecommerce.order_refunded";
 static NSString *const BRAZE_EVENT_ORDER_CANCELLED = @"ecommerce.order_cancelled";
 
-// cart_updated actions.
 static NSString *const ACTION_ADD = @"add";
 static NSString *const ACTION_REMOVE = @"remove";
 
-// source is hardcoded per platform for mobile device mode (no channel derivation).
 static NSString *const SOURCE_KEY = @"source";
 static NSString *const SOURCE = @"ios";
 
-// RudderStack ecommerce source keys. Hardcoded as literals to match the existing integration's
-// style (see getPurchaseList); these correspond to the RS ecommerce spec field names.
+// RudderStack ecommerce source keys.
 static NSString *const EC_PRODUCT_ID = @"product_id";
 static NSString *const EC_QUANTITY = @"quantity";
 static NSString *const EC_PRICE = @"price";
@@ -84,11 +80,10 @@ static NSString *const EC_TYPE = @"type";
 static NSString *const EC_SUBTOTAL_VALUE = @"subtotal_value";
 static NSString *const EC_DISCOUNTS = @"discounts";
 static NSString *const EC_TOTAL_DISCOUNTS = @"total_discounts";
-// cancel_reason / reason are both valid RS sources for Braze's required cancel_reason.
 static NSString *const EC_CANCEL_REASON = @"cancel_reason";
 static NSString *const EC_REASON = @"reason";
 
-// Braze recommended-event field names (official Braze schema names).
+// Braze recommended-event field names.
 static NSString *const BRAZE_PRODUCT_ID = @"product_id";
 static NSString *const BRAZE_PRODUCT_NAME = @"product_name";
 static NSString *const BRAZE_VARIANT_ID = @"variant_id";
@@ -114,10 +109,9 @@ static NSString *const BRAZE_METADATA = @"metadata";
 
 @implementation RudderBrazeEcommerceUtils
 
-#pragma mark - Consumed-key sets (D6 metadata pass-through)
+#pragma mark - Consumed-key sets
 
-// Any RS source key NOT consumed by a top-level / product mapping flows into metadata /
-// products[].metadata, never left top-level.
+// Source keys consumed by each event's mapping; everything else flows into metadata.
 + (NSSet<NSString *> *)productConsumedKeys {
     static NSSet *keys; static dispatch_once_t t;
     dispatch_once(&t, ^{ keys = [NSSet setWithArray:@[EC_PRODUCT_ID, EC_SKU, EC_NAME, EC_VARIANT, EC_QUANTITY, EC_PRICE, EC_IMAGE_URL, EC_URL]]; });
@@ -165,7 +159,6 @@ static NSString *const BRAZE_METADATA = @"metadata";
 + (NSDictionary<NSString *, RudderBrazeEcommerceEvent *> *)ecommerceEventMapping {
     static NSDictionary *mapping; static dispatch_once_t t;
     dispatch_once(&t, ^{
-        // Keys are the RudderStack ecommerce event names, lowercased for case-insensitive lookup.
         mapping = @{
             @"product viewed":    [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductViewed brazeEvent:BRAZE_EVENT_PRODUCT_VIEWED action:nil],
             @"product added":     [RudderBrazeEcommerceEvent eventWithType:RudderBrazeEcommerceEventTypeProductAdded brazeEvent:BRAZE_EVENT_CART_UPDATED action:ACTION_ADD],
@@ -210,7 +203,6 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return [NSMutableDictionary dictionary];
 }
 
-// ecommerce.product_viewed - flat, single-product event (no products array, no quantity).
 + (NSDictionary<NSString *, id> *)buildProductViewed:(NSDictionary *)props {
     NSString *brazeEvent = BRAZE_EVENT_PRODUCT_VIEWED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -241,8 +233,8 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return out;
 }
 
-// ecommerce.cart_updated - Product Added/Removed; single top-level product wrapped into a
-// 1-element products array. action is the only difference between add and remove.
+// A single top-level product is wrapped into a 1-element products array; action distinguishes
+// add from remove.
 + (NSDictionary<NSString *, id> *)buildCartUpdated:(NSDictionary *)props action:(NSString *)action {
     NSString *brazeEvent = BRAZE_EVENT_CART_UPDATED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -273,7 +265,6 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return out;
 }
 
-// ecommerce.checkout_started - checkout_id falls back to order_id.
 + (NSDictionary<NSString *, id> *)buildCheckoutStarted:(NSDictionary *)props {
     NSString *brazeEvent = BRAZE_EVENT_CHECKOUT_STARTED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -306,8 +297,6 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return out;
 }
 
-// ecommerce.order_placed - Order Completed. One event per order with all products inside
-// products[] (vs. the legacy one-purchase-per-product model).
 + (NSDictionary<NSString *, id> *)buildOrderPlaced:(NSDictionary *)props {
     NSString *brazeEvent = BRAZE_EVENT_ORDER_PLACED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -342,8 +331,6 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return out;
 }
 
-// ecommerce.order_refunded - RS Order Refunded carries only order_id today; total_value,
-// currency and products are RS-spec gaps (mapped if present, warned if absent).
 + (NSDictionary<NSString *, id> *)buildOrderRefunded:(NSDictionary *)props {
     NSString *brazeEvent = BRAZE_EVENT_ORDER_REFUNDED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -374,8 +361,6 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return out;
 }
 
-// ecommerce.order_cancelled - cancel_reason falls back to the standard RS reason field
-// (mapped if present, warned if absent). total_value kept verbatim (no abs).
 + (NSDictionary<NSString *, id> *)buildOrderCancelled:(NSDictionary *)props {
     NSString *brazeEvent = BRAZE_EVENT_ORDER_CANCELLED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
@@ -434,9 +419,7 @@ static NSString *const BRAZE_METADATA = @"metadata";
     return product;
 }
 
-// Maps the shared Braze product object (no metadata). cart_updated routes leftover product keys
-// into event-level metadata, so it uses this directly; array products add per-product metadata
-// via buildProduct.
+// Maps the shared Braze product object without metadata; callers add metadata as needed.
 + (NSMutableDictionary *)buildProductFields:(NSDictionary *)rsProduct {
     NSMutableDictionary *product = [NSMutableDictionary dictionary];
     putIfPresent(product, BRAZE_PRODUCT_ID, firstNonNull(rsProduct, @[EC_PRODUCT_ID, EC_SKU]));
@@ -451,7 +434,7 @@ static NSString *const BRAZE_METADATA = @"metadata";
 
 #pragma mark - Helpers
 
-// D6: any source key not consumed by a mapping flows into metadata (never left top-level).
+// Copies every key not consumed by the mapping into a nested metadata object.
 static void putMetadata(NSMutableDictionary *target, NSDictionary *props, NSSet<NSString *> *consumedKeys) {
     NSMutableDictionary *metadata = [NSMutableDictionary dictionary];
     for (NSString *key in props) {
@@ -467,7 +450,7 @@ static void putMetadata(NSMutableDictionary *target, NSDictionary *props, NSSet<
     }
 }
 
-// Returns the first non-null, non-empty value among the given keys (fallback chain).
+// First non-null, non-empty value among the given keys.
 static id firstNonNull(NSDictionary *props, NSArray<NSString *> *keys) {
     if (props == nil) {
         return nil;
@@ -488,8 +471,7 @@ static void putIfPresent(NSMutableDictionary *target, NSString *key, id value) {
     }
 }
 
-// Send-anyway validation (D5): a missing Braze-required field is logged but never drops the event.
-// source is intentionally never checked here - it always resolves to the platform.
+// Logs a missing required field without dropping the event.
 static void warnIfMissing(NSString *brazeEvent, NSString *field, id value) {
     if (value == nil) {
         [RSLogger logWarn:[NSString stringWithFormat:

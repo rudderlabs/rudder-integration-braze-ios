@@ -19,8 +19,6 @@ static Braze *rsBrazeInstance;
         self.config = config;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
-        // Recommended ecommerce events flag (default off; on = hard cutover). Mapping logic lives
-        // in RudderBrazeEcommerceUtils.
         self.useRecommendedEcommerceEvents = [[config objectForKey:@"useRecommendedEcommerceEvents"] boolValue] ? YES : NO;
 
         BOOL usePlatformSpecificAppIdentifierKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
@@ -269,10 +267,8 @@ static Braze *rsBrazeInstance;
         }
         self.previousIdentifyElement = message;
     } else if([message.type isEqualToString:@"track"]) {
-        // When the flag is on, recommended ecommerce events take a hard cutover before the legacy
-        // Install Attributed / Order Completed paths. Events with no recommended-event counterpart
-        // (Product Clicked, Cart Viewed, Install Attributed, etc.) fall through and keep their
-        // existing behaviour.
+        // When enabled, recommended ecommerce events are handled before the legacy paths; other
+        // events fall through unchanged.
         if (self.useRecommendedEcommerceEvents) {
             RudderBrazeEcommerceEvent *ecommerceEvent = [RudderBrazeEcommerceUtils resolveEcommerceEvent:message.event];
             if (ecommerceEvent != nil) {
