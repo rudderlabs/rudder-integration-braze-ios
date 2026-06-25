@@ -109,6 +109,30 @@ static NSString *const BRAZE_SUBTOTAL_VALUE = @"subtotal_value";
 static NSString *const BRAZE_DISCOUNTS = @"discounts";
 static NSString *const BRAZE_METADATA = @"metadata";
 
+#pragma mark - Type coercion
+
+// The type Braze expects for a recommended-event field. Resolved values are coerced toward this type
+// where possible; an un-coercible value is sent verbatim and surfaced via a single warning per event.
+typedef NS_ENUM(NSInteger, RudderBrazeFieldType) {
+    RudderBrazeFieldTypeString,
+    RudderBrazeFieldTypeInteger,
+    RudderBrazeFieldTypeFloat,
+    RudderBrazeFieldTypeStringArray,
+    RudderBrazeFieldTypeArray
+};
+
+static NSArray<NSArray *> *fieldTypeTable(void);
+static void coerceAndWarnTypes(NSString *brazeEvent, NSMutableDictionary *out);
+static id coerceValue(id value, RudderBrazeFieldType type);
+static BOOL valueMatchesType(id value, RudderBrazeFieldType type);
+static BOOL isIntegralNumber(NSNumber *number);
+static BOOL isStringArray(id value);
+static BOOL isBooleanNumber(NSNumber *number);
+static NSString *numberToBrazeString(NSNumber *number);
+static NSString *fieldTypeName(RudderBrazeFieldType type);
+static NSNumber *parseDoubleOrNil(NSString *string);
+static NSNumber *parseLongOrNil(NSString *string);
+
 @implementation RudderBrazeEcommerceUtils
 
 #pragma mark - Consumed-key sets
@@ -188,22 +212,34 @@ static NSString *const BRAZE_METADATA = @"metadata";
 + (NSDictionary<NSString *, id> *)buildEcommerceProperties:(RudderBrazeEcommerceEvent *)ecommerceEvent
                                                 properties:(NSDictionary<NSString *, id> *)properties {
     NSDictionary *props = (properties != nil) ? properties : @{};
+    NSMutableDictionary *out = nil;
     switch (ecommerceEvent.type) {
         case RudderBrazeEcommerceEventTypeProductViewed:
-            return [self buildProductViewed:props];
+            out = (NSMutableDictionary *)[self buildProductViewed:props];
+            break;
         case RudderBrazeEcommerceEventTypeProductAdded:
         case RudderBrazeEcommerceEventTypeProductRemoved:
-            return [self buildCartUpdated:props action:ecommerceEvent.action];
+            out = (NSMutableDictionary *)[self buildCartUpdated:props action:ecommerceEvent.action];
+            break;
         case RudderBrazeEcommerceEventTypeCheckoutStarted:
-            return [self buildCheckoutStarted:props];
+            out = (NSMutableDictionary *)[self buildCheckoutStarted:props];
+            break;
         case RudderBrazeEcommerceEventTypeOrderCompleted:
-            return [self buildOrderPlaced:props];
+            out = (NSMutableDictionary *)[self buildOrderPlaced:props];
+            break;
         case RudderBrazeEcommerceEventTypeOrderRefunded:
-            return [self buildOrderRefunded:props];
+            out = (NSMutableDictionary *)[self buildOrderRefunded:props];
+            break;
         case RudderBrazeEcommerceEventTypeOrderCancelled:
-            return [self buildOrderCancelled:props];
+            out = (NSMutableDictionary *)[self buildOrderCancelled:props];
+            break;
     }
-    return [NSMutableDictionary dictionary];
+    if (out == nil) {
+        return [NSMutableDictionary dictionary];
+    }
+    // Coerce resolved values toward Braze's expected types and warn on any residual mismatch.
+    coerceAndWarnTypes(ecommerceEvent.brazeEvent, out);
+    return out;
 }
 
 + (NSDictionary<NSString *, id> *)buildProductViewed:(NSDictionary *)props {
@@ -481,6 +517,212 @@ static void warnIfMissing(NSString *brazeEvent, NSString *field, id value) {
             @"RudderBrazeIntegration: recommended event %@ is missing required field '%@'; sending event anyway.",
             brazeEvent, field]];
     }
+}
+
+#pragma mark - Type coercion
+
+// Each Braze field has exactly one expected type globally, so a single ordered table serves both
+// top-level and products[] fields (event-only keys simply never appear inside a product). Order =
+// warning order. Control fields (source/action/products/metadata) are intentionally omitted.
+static NSArray<NSArray *> *fieldTypeTable(void) {
+    static NSArray *table; static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        table = @[
+            @[BRAZE_PRODUCT_ID,      @(RudderBrazeFieldTypeString)],
+            @[BRAZE_PRODUCT_NAME,    @(RudderBrazeFieldTypeString)],
+            @[BRAZE_VARIANT_ID,      @(RudderBrazeFieldTypeString)],
+            @[BRAZE_QUANTITY,        @(RudderBrazeFieldTypeInteger)],
+            @[BRAZE_PRICE,           @(RudderBrazeFieldTypeFloat)],
+            @[BRAZE_IMAGE_URL,       @(RudderBrazeFieldTypeString)],
+            @[BRAZE_PRODUCT_URL,     @(RudderBrazeFieldTypeString)],
+            @[BRAZE_CART_ID,         @(RudderBrazeFieldTypeString)],
+            @[BRAZE_CHECKOUT_ID,     @(RudderBrazeFieldTypeString)],
+            @[BRAZE_ORDER_ID,        @(RudderBrazeFieldTypeString)],
+            @[BRAZE_CURRENCY,        @(RudderBrazeFieldTypeString)],
+            @[BRAZE_TOTAL_VALUE,     @(RudderBrazeFieldTypeFloat)],
+            @[BRAZE_SUBTOTAL_VALUE,  @(RudderBrazeFieldTypeFloat)],
+            @[BRAZE_TAX,             @(RudderBrazeFieldTypeFloat)],
+            @[BRAZE_SHIPPING,        @(RudderBrazeFieldTypeFloat)],
+            @[BRAZE_TOTAL_DISCOUNTS, @(RudderBrazeFieldTypeFloat)],
+            @[BRAZE_CANCEL_REASON,   @(RudderBrazeFieldTypeString)],
+            @[BRAZE_TYPE,            @(RudderBrazeFieldTypeStringArray)],
+            @[BRAZE_DISCOUNTS,       @(RudderBrazeFieldTypeArray)],
+        ];
+    });
+    return table;
+}
+
+// Coerces each resolved field toward its expected type (top-level and products[]), then logs one
+// warning listing any field whose value still does not match after coercion (sent as-is).
+static void coerceAndWarnTypes(NSString *brazeEvent, NSMutableDictionary *out) {
+    NSMutableArray<NSString *> *mismatched = [NSMutableArray array];
+    NSArray<NSArray *> *table = fieldTypeTable();
+
+    for (NSArray *entry in table) {
+        NSString *field = entry[0];
+        RudderBrazeFieldType type = (RudderBrazeFieldType)[entry[1] integerValue];
+        id value = out[field];
+        if (value != nil) {
+            id coerced = coerceValue(value, type);
+            out[field] = coerced;
+            if (!valueMatchesType(coerced, type)) {
+                [mismatched addObject:[NSString stringWithFormat:@"%@ (expected %@)", field, fieldTypeName(type)]];
+            }
+        }
+    }
+
+    id productsObj = out[BRAZE_PRODUCTS];
+    if ([productsObj isKindOfClass:[NSArray class]]) {
+        NSArray *products = (NSArray *)productsObj;
+        for (NSArray *entry in table) {
+            NSString *field = entry[0];
+            RudderBrazeFieldType type = (RudderBrazeFieldType)[entry[1] integerValue];
+            BOOL anyMismatch = NO;
+            for (id item in products) {
+                if ([item isKindOfClass:[NSMutableDictionary class]]) {
+                    NSMutableDictionary *product = (NSMutableDictionary *)item;
+                    id value = product[field];
+                    if (value != nil) {
+                        id coerced = coerceValue(value, type);
+                        product[field] = coerced;
+                        if (!valueMatchesType(coerced, type)) {
+                            anyMismatch = YES;
+                        }
+                    }
+                }
+            }
+            if (anyMismatch) {
+                [mismatched addObject:[NSString stringWithFormat:@"products[].%@ (expected %@)", field, fieldTypeName(type)]];
+            }
+        }
+    }
+
+    if (mismatched.count > 0) {
+        [RSLogger logWarn:[NSString stringWithFormat:
+            @"RudderBrazeIntegration: recommended event %@ has type-mismatched field(s) (sent as-is): [%@]",
+            brazeEvent, [mismatched componentsJoinedByString:@", "]]];
+    }
+}
+
+// numeric string -> number (FLOAT/INTEGER), number/boolean -> string (STRING). Numbers are left as-is
+// for numeric fields (Braze accepts an integer where a float is expected); arrays/objects are never
+// coerced. Anything that cannot be coerced is returned unchanged.
+static id coerceValue(id value, RudderBrazeFieldType type) {
+    switch (type) {
+        case RudderBrazeFieldTypeString:
+            if ([value isKindOfClass:[NSNumber class]]) {
+                return numberToBrazeString((NSNumber *)value);
+            }
+            return value;
+        case RudderBrazeFieldTypeFloat:
+            if ([value isKindOfClass:[NSString class]]) {
+                NSNumber *parsed = parseDoubleOrNil((NSString *)value);
+                return parsed != nil ? parsed : value;
+            }
+            return value;
+        case RudderBrazeFieldTypeInteger:
+            if ([value isKindOfClass:[NSString class]]) {
+                NSNumber *parsed = parseLongOrNil((NSString *)value);
+                return parsed != nil ? parsed : value;
+            }
+            return value;
+        case RudderBrazeFieldTypeStringArray:
+        case RudderBrazeFieldTypeArray:
+        default:
+            return value;
+    }
+}
+
+// 0 / false are valid; a numeric written as a string (e.g. "29.99") does not match a numeric type.
+static BOOL valueMatchesType(id value, RudderBrazeFieldType type) {
+    switch (type) {
+        case RudderBrazeFieldTypeString:
+            return [value isKindOfClass:[NSString class]];
+        case RudderBrazeFieldTypeInteger:
+            return [value isKindOfClass:[NSNumber class]] && !isBooleanNumber((NSNumber *)value)
+                && isIntegralNumber((NSNumber *)value);
+        case RudderBrazeFieldTypeFloat:
+            return [value isKindOfClass:[NSNumber class]] && !isBooleanNumber((NSNumber *)value);
+        case RudderBrazeFieldTypeStringArray:
+            return isStringArray(value);
+        case RudderBrazeFieldTypeArray:
+            return [value isKindOfClass:[NSArray class]];
+        default:
+            return YES;
+    }
+}
+
+static BOOL isIntegralNumber(NSNumber *number) {
+    const char *t = [number objCType];
+    if (strcmp(t, @encode(double)) == 0 || strcmp(t, @encode(float)) == 0) {
+        double d = [number doubleValue];
+        return isfinite(d) && d == floor(d);
+    }
+    return YES;
+}
+
+static BOOL isStringArray(id value) {
+    if (![value isKindOfClass:[NSArray class]]) {
+        return NO;
+    }
+    for (id item in (NSArray *)value) {
+        if (![item isKindOfClass:[NSString class]]) {
+            return NO;
+        }
+    }
+    return YES;
+}
+
+static BOOL isBooleanNumber(NSNumber *number) {
+    return CFGetTypeID((__bridge CFTypeRef)number) == CFBooleanGetTypeID();
+}
+
+static NSString *numberToBrazeString(NSNumber *number) {
+    if (isBooleanNumber(number)) {
+        return [number boolValue] ? @"true" : @"false";
+    }
+    return [number stringValue];
+}
+
+static NSString *fieldTypeName(RudderBrazeFieldType type) {
+    switch (type) {
+        case RudderBrazeFieldTypeString:      return @"STRING";
+        case RudderBrazeFieldTypeInteger:     return @"INTEGER";
+        case RudderBrazeFieldTypeFloat:       return @"FLOAT";
+        case RudderBrazeFieldTypeStringArray: return @"STRING_ARRAY";
+        case RudderBrazeFieldTypeArray:       return @"ARRAY";
+    }
+    return @"";
+}
+
+// Parses a fully-numeric string to a double, or nil if it is not a valid number (then sent as-is).
+static NSNumber *parseDoubleOrNil(NSString *string) {
+    NSString *trimmed = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    if (trimmed.length == 0) {
+        return nil;
+    }
+    const char *c = [trimmed UTF8String];
+    char *end = NULL;
+    double d = strtod(c, &end);
+    if (end == c || *end != '\0') {
+        return nil;
+    }
+    return @(d);
+}
+
+// Parses a fully-integral string to a long, or nil otherwise (e.g. "2.5" and "free" both fail).
+static NSNumber *parseLongOrNil(NSString *string) {
+    NSString *trimmed = [string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    if (trimmed.length == 0) {
+        return nil;
+    }
+    const char *c = [trimmed UTF8String];
+    char *end = NULL;
+    long long v = strtoll(c, &end, 10);
+    if (end == c || *end != '\0') {
+        return nil;
+    }
+    return @(v);
 }
 
 @end
