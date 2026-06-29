@@ -23,6 +23,7 @@
 		71719F9F1E33DC2100824A3D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 71719F9D1E33DC2100824A3D /* LaunchScreen.storyboard */; };
 		873B8AEB1B1F5CCA007FD442 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 873B8AEA1B1F5CCA007FD442 /* Main.storyboard */; };
 		8CBF2B682AA1045600A58EFF /* ExamplePush.apns in Resources */ = {isa = PBXBuildFile; fileRef = 8CBF2B672AA1045600A58EFF /* ExamplePush.apns */; };
+		8F64CD9A394B29BBB30C5178 /* Pods_Rudder_Braze_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B07600495E853FDA011CF865 /* Pods_Rudder_Braze_Tests.framework */; };
 		CF593CFF39785FD1434D0755 /* Pods_Rudder_Braze_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5D95D1EF4A7416C54D00CAFB /* Pods_Rudder_Braze_Example.framework */; };
 		EDA2C5C029C4339000B7FF42 /* SampleRudderConfig.plist in Resources */ = {isa = PBXBuildFile; fileRef = EDA2C5BD29C4339000B7FF42 /* SampleRudderConfig.plist */; };
 		EDA2C5C429C4341D00B7FF42 /* RudderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA2C5C329C4341D00B7FF42 /* RudderConfig.swift */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		264FC1B2440B8D3CF6D3DD9A /* Pods-Rudder-Braze_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rudder-Braze_Tests.release.xcconfig"; path = "Target Support Files/Pods-Rudder-Braze_Tests/Pods-Rudder-Braze_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		5D95D1EF4A7416C54D00CAFB /* Pods_Rudder_Braze_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Rudder_Braze_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58A195388D20070C39A /* Rudder-Braze_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Rudder-Braze_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		6003F58D195388D20070C39A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -62,9 +64,11 @@
 		61CBF84E5B022B048B864854 /* Pods-Rudder-Braze_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rudder-Braze_Example.debug.xcconfig"; path = "Target Support Files/Pods-Rudder-Braze_Example/Pods-Rudder-Braze_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		71719F9E1E33DC2100824A3D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		873B8AEA1B1F5CCA007FD442 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Main.storyboard; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		878BB5C78838CA7BFDDA0191 /* Pods-Rudder-Braze_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rudder-Braze_Tests.debug.xcconfig"; path = "Target Support Files/Pods-Rudder-Braze_Tests/Pods-Rudder-Braze_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		8CBF2B662AA0ED7A00A58EFF /* Rudder-Braze_Example.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Rudder-Braze_Example.entitlements"; sourceTree = "<group>"; };
 		8CBF2B672AA1045600A58EFF /* ExamplePush.apns */ = {isa = PBXFileReference; lastKnownFileType = text; path = ExamplePush.apns; sourceTree = "<group>"; };
 		9D41BA55C48AAEED1267EB26 /* Rudder-Braze.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "Rudder-Braze.podspec"; path = "../Rudder-Braze.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		B07600495E853FDA011CF865 /* Pods_Rudder_Braze_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Rudder_Braze_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		BA3AB6DAB2233FE3AB2FF006 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		CCEC7FA67182AB4FB2230DB5 /* Pods-Rudder-Braze_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Rudder-Braze_Example.release.xcconfig"; path = "Target Support Files/Pods-Rudder-Braze_Example/Pods-Rudder-Braze_Example.release.xcconfig"; sourceTree = "<group>"; };
 		EDA2C59829BAFA9800B7FF42 /* CONTRIBUTING.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = CONTRIBUTING.md; path = ../CONTRIBUTING.md; sourceTree = "<group>"; };
@@ -105,6 +109,7 @@
 				6003F5B0195388D20070C39A /* XCTest.framework in Frameworks */,
 				6003F5B2195388D20070C39A /* UIKit.framework in Frameworks */,
 				6003F5B1195388D20070C39A /* Foundation.framework in Frameworks */,
+				8F64CD9A394B29BBB30C5178 /* Pods_Rudder_Braze_Tests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -141,6 +146,7 @@
 				6003F591195388D20070C39A /* UIKit.framework */,
 				6003F5AF195388D20070C39A /* XCTest.framework */,
 				5D95D1EF4A7416C54D00CAFB /* Pods_Rudder_Braze_Example.framework */,
+				B07600495E853FDA011CF865 /* Pods_Rudder_Braze_Tests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -213,6 +219,8 @@
 			children = (
 				61CBF84E5B022B048B864854 /* Pods-Rudder-Braze_Example.debug.xcconfig */,
 				CCEC7FA67182AB4FB2230DB5 /* Pods-Rudder-Braze_Example.release.xcconfig */,
+				878BB5C78838CA7BFDDA0191 /* Pods-Rudder-Braze_Tests.debug.xcconfig */,
+				264FC1B2440B8D3CF6D3DD9A /* Pods-Rudder-Braze_Tests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -278,6 +286,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 6003F5C2195388D20070C39A /* Build configuration list for PBXNativeTarget "Rudder-Braze_Tests" */;
 			buildPhases = (
+				DD5B5D1C9D16315622CC55A6 /* [CP] Check Pods Manifest.lock */,
 				6003F5AA195388D20070C39A /* Sources */,
 				6003F5AB195388D20070C39A /* Frameworks */,
 				6003F5AC195388D20070C39A /* Resources */,
@@ -421,6 +430,28 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Rudder-Braze_Example/Pods-Rudder-Braze_Example-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DD5B5D1C9D16315622CC55A6 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Rudder-Braze_Tests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -635,6 +666,7 @@
 		};
 		6003F5C3195388D20070C39A /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 878BB5C78838CA7BFDDA0191 /* Pods-Rudder-Braze_Tests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -660,6 +692,7 @@
 		};
 		6003F5C4195388D20070C39A /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 264FC1B2440B8D3CF6D3DD9A /* Pods-Rudder-Braze_Tests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";

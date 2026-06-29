@@ -10,6 +10,11 @@
 #import "Rudder.h"
 #endif
 
+// Headers for the C library functions used below (strcmp / strtod / strtoll / isfinite / floor).
+#import <string.h>
+#import <stdlib.h>
+#import <math.h>
+
 #pragma mark - Event type
 
 typedef NS_ENUM(NSInteger, RudderBrazeEcommerceEventType) {
@@ -31,7 +36,7 @@ typedef NS_ENUM(NSInteger, RudderBrazeEcommerceEventType) {
 
 @implementation RudderBrazeEcommerceEvent
 
-+ (instancetype)eventWithType:(RudderBrazeEcommerceEventType)type brazeEvent:(NSString *)brazeEvent action:(NSString *)action {
++ (instancetype)eventWithType:(RudderBrazeEcommerceEventType)type brazeEvent:(NSString *)brazeEvent action:(nullable NSString *)action {
     RudderBrazeEcommerceEvent *event = [[RudderBrazeEcommerceEvent alloc] init];
     event.type = type;
     event.brazeEvent = brazeEvent;
@@ -215,23 +220,23 @@ static NSNumber *parseLongOrNil(NSString *string);
     NSMutableDictionary *out = nil;
     switch (ecommerceEvent.type) {
         case RudderBrazeEcommerceEventTypeProductViewed:
-            out = (NSMutableDictionary *)[self buildProductViewed:props];
+            out = [[self buildProductViewed:props] mutableCopy];
             break;
         case RudderBrazeEcommerceEventTypeProductAdded:
         case RudderBrazeEcommerceEventTypeProductRemoved:
-            out = (NSMutableDictionary *)[self buildCartUpdated:props action:ecommerceEvent.action];
+            out = [[self buildCartUpdated:props action:ecommerceEvent.action] mutableCopy];
             break;
         case RudderBrazeEcommerceEventTypeCheckoutStarted:
-            out = (NSMutableDictionary *)[self buildCheckoutStarted:props];
+            out = [[self buildCheckoutStarted:props] mutableCopy];
             break;
         case RudderBrazeEcommerceEventTypeOrderCompleted:
-            out = (NSMutableDictionary *)[self buildOrderPlaced:props];
+            out = [[self buildOrderPlaced:props] mutableCopy];
             break;
         case RudderBrazeEcommerceEventTypeOrderRefunded:
-            out = (NSMutableDictionary *)[self buildOrderRefunded:props];
+            out = [[self buildOrderRefunded:props] mutableCopy];
             break;
         case RudderBrazeEcommerceEventTypeOrderCancelled:
-            out = (NSMutableDictionary *)[self buildOrderCancelled:props];
+            out = [[self buildOrderCancelled:props] mutableCopy];
             break;
     }
     if (out == nil) {
@@ -446,7 +451,12 @@ static NSNumber *parseLongOrNil(NSString *string);
     NSMutableArray *products = [NSMutableArray array];
     for (id item in (NSArray *)raw) {
         if ([item isKindOfClass:[NSDictionary class]]) {
-            [products addObject:[self buildProduct:(NSDictionary *)item]];
+            NSMutableDictionary *product = [self buildProduct:(NSDictionary *)item];
+            // Skip empty product maps so an all-empty products array is treated as "no products"
+            // (omitted + missing-field warning) rather than sending products: [ {} ].
+            if (product.count > 0) {
+                [products addObject:product];
+            }
         }
     }
     return products.count > 0 ? products : nil;
@@ -479,7 +489,7 @@ static void putMetadata(NSMutableDictionary *target, NSDictionary *props, NSSet<
     for (NSString *key in props) {
         if (![consumedKeys containsObject:key]) {
             id value = props[key];
-            if (value != nil) {
+            if (value != nil && value != [NSNull null]) {
                 metadata[key] = value;
             }
         }
