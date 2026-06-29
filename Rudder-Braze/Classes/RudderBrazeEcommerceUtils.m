@@ -155,9 +155,15 @@ static NSNumber *parseLongOrNil(NSString *string);
     return keys;
 }
 
-+ (NSSet<NSString *> *)cartUpdatedConsumedKeys {
-    static NSSet *keys; static dispatch_once_t t;
-    dispatch_once(&t, ^{ keys = [NSSet setWithArray:@[EC_CART_ID, EC_CURRENCY, EC_PRODUCT_ID, EC_SKU, EC_NAME, EC_VARIANT, EC_QUANTITY, EC_PRICE, EC_IMAGE_URL, EC_URL, EC_TOTAL, EC_VALUE, EC_SUBTOTAL_VALUE, EC_TAX, EC_SHIPPING]]; });
+// Cart-level keys are always consumed. With an explicit products[] its items are mapped and `products`
+// is consumed; otherwise the top-level product fields are folded into products[0] and consumed instead.
++ (NSSet<NSString *> *)cartUpdatedConsumedKeys:(NSDictionary *)props {
+    NSMutableSet *keys = [NSMutableSet setWithArray:@[EC_CART_ID, EC_CURRENCY, EC_TOTAL, EC_VALUE, EC_SUBTOTAL_VALUE, EC_TAX, EC_SHIPPING]];
+    if ([self explicitProductsArray:props] != nil) {
+        [keys addObject:EC_PRODUCTS];
+    } else {
+        [keys addObjectsFromArray:@[EC_PRODUCT_ID, EC_SKU, EC_NAME, EC_VARIANT, EC_QUANTITY, EC_PRICE, EC_IMAGE_URL, EC_URL]];
+    }
     return keys;
 }
 
@@ -183,6 +189,17 @@ static NSNumber *parseLongOrNil(NSString *string);
     static NSSet *keys; static dispatch_once_t t;
     dispatch_once(&t, ^{ keys = [NSSet setWithArray:@[EC_ORDER_ID, EC_TOTAL, EC_REVENUE, EC_VALUE, EC_SUBTOTAL_VALUE, EC_CURRENCY, EC_CANCEL_REASON, EC_REASON, EC_PRODUCTS, EC_TAX, EC_SHIPPING, EC_DISCOUNT, EC_TOTAL_DISCOUNTS, EC_DISCOUNTS]]; });
     return keys;
+}
+
+// `products` is consumed (kept out of metadata) only when it is an explicit array of objects we build
+// from. A non-array/malformed value is left unconsumed so it flows through to metadata, not dropped.
++ (NSSet<NSString *> *)consumedKeys:(NSSet<NSString *> *)base withProductsArrayFrom:(NSDictionary *)props {
+    if ([self explicitProductsArray:props] != nil) {
+        return base;
+    }
+    NSMutableSet *adjusted = [base mutableCopy];
+    [adjusted removeObject:EC_PRODUCTS];
+    return adjusted;
 }
 
 #pragma mark - Resolution
@@ -277,19 +294,28 @@ static NSNumber *parseLongOrNil(NSString *string);
     return out;
 }
 
-// A single top-level product is wrapped into a 1-element products array; action distinguishes
-// add from remove.
+// cart_updated maps an explicit products[] item-by-item when present; otherwise the top-level product
+// fields are folded into a single-element products array. action distinguishes add from remove.
 + (NSDictionary<NSString *, id> *)buildCartUpdated:(NSDictionary *)props action:(NSString *)action {
     NSString *brazeEvent = BRAZE_EVENT_CART_UPDATED;
     NSMutableDictionary *out = [NSMutableDictionary dictionary];
 
     id cartId = firstNonNull(props, @[EC_CART_ID]);
     id currency = firstNonNull(props, @[EC_CURRENCY]);
-    NSMutableDictionary *product = [self buildProductFields:props];
+
+    NSArray *products = nil;
+    if ([self explicitProductsArray:props] != nil) {
+        products = [self buildProducts:props];
+    } else {
+        NSMutableDictionary *product = [self buildProductFields:props];
+        if (product.count > 0) {
+            products = @[product];
+        }
+    }
 
     warnIfMissing(brazeEvent, BRAZE_CART_ID, cartId);
     warnIfMissing(brazeEvent, BRAZE_CURRENCY, currency);
-    if (product.count == 0) {
+    if (products == nil) {
         warnIfMissing(brazeEvent, BRAZE_PRODUCTS, nil);
     }
 
@@ -300,12 +326,12 @@ static NSNumber *parseLongOrNil(NSString *string);
     putIfPresent(out, BRAZE_TAX, firstNonNull(props, @[EC_TAX]));
     putIfPresent(out, BRAZE_SHIPPING, firstNonNull(props, @[EC_SHIPPING]));
     out[BRAZE_ACTION] = action;
-    if (product.count > 0) {
-        out[BRAZE_PRODUCTS] = @[product];
+    if (products != nil) {
+        out[BRAZE_PRODUCTS] = products;
     }
     out[SOURCE_KEY] = SOURCE;
 
-    putMetadata(out, props, [self cartUpdatedConsumedKeys]);
+    putMetadata(out, props, [self cartUpdatedConsumedKeys:props]);
     return out;
 }
 
@@ -337,7 +363,7 @@ static NSNumber *parseLongOrNil(NSString *string);
     putIfPresent(out, BRAZE_SHIPPING, firstNonNull(props, @[EC_SHIPPING]));
     out[SOURCE_KEY] = SOURCE;
 
-    putMetadata(out, props, [self checkoutStartedConsumedKeys]);
+    putMetadata(out, props, [self consumedKeys:[self checkoutStartedConsumedKeys] withProductsArrayFrom:props]);
     return out;
 }
 
@@ -371,7 +397,7 @@ static NSNumber *parseLongOrNil(NSString *string);
     putIfPresent(out, BRAZE_DISCOUNTS, firstNonNull(props, @[EC_DISCOUNTS]));
     out[SOURCE_KEY] = SOURCE;
 
-    putMetadata(out, props, [self orderPlacedConsumedKeys]);
+    putMetadata(out, props, [self consumedKeys:[self orderPlacedConsumedKeys] withProductsArrayFrom:props]);
     return out;
 }
 
@@ -401,7 +427,7 @@ static NSNumber *parseLongOrNil(NSString *string);
     putIfPresent(out, BRAZE_DISCOUNTS, firstNonNull(props, @[EC_DISCOUNTS]));
     out[SOURCE_KEY] = SOURCE;
 
-    putMetadata(out, props, [self orderRefundedConsumedKeys]);
+    putMetadata(out, props, [self consumedKeys:[self orderRefundedConsumedKeys] withProductsArrayFrom:props]);
     return out;
 }
 
@@ -437,26 +463,39 @@ static NSNumber *parseLongOrNil(NSString *string);
     putIfPresent(out, BRAZE_DISCOUNTS, firstNonNull(props, @[EC_DISCOUNTS]));
     out[SOURCE_KEY] = SOURCE;
 
-    putMetadata(out, props, [self orderCancelledConsumedKeys]);
+    putMetadata(out, props, [self consumedKeys:[self orderCancelledConsumedKeys] withProductsArrayFrom:props]);
     return out;
 }
 
 #pragma mark - Products
 
-+ (nullable NSArray<NSDictionary *> *)buildProducts:(NSDictionary *)props {
+// Returns props[products] only when it is an array whose every element is an object. A non-array or
+// mixed/malformed array returns nil so the original value can flow through to metadata (never dropped).
++ (nullable NSArray<NSDictionary *> *)explicitProductsArray:(NSDictionary *)props {
     id raw = props[EC_PRODUCTS];
     if (![raw isKindOfClass:[NSArray class]]) {
         return nil;
     }
-    NSMutableArray *products = [NSMutableArray array];
     for (id item in (NSArray *)raw) {
-        if ([item isKindOfClass:[NSDictionary class]]) {
-            NSMutableDictionary *product = [self buildProduct:(NSDictionary *)item];
-            // Skip empty product maps so an all-empty products array is treated as "no products"
-            // (omitted + missing-field warning) rather than sending products: [ {} ].
-            if (product.count > 0) {
-                [products addObject:product];
-            }
+        if (![item isKindOfClass:[NSDictionary class]]) {
+            return nil;
+        }
+    }
+    return (NSArray *)raw;
+}
+
++ (nullable NSArray<NSDictionary *> *)buildProducts:(NSDictionary *)props {
+    NSArray<NSDictionary *> *raw = [self explicitProductsArray:props];
+    if (raw == nil) {
+        return nil;
+    }
+    NSMutableArray *products = [NSMutableArray array];
+    for (NSDictionary *item in raw) {
+        NSMutableDictionary *product = [self buildProduct:item];
+        // Skip empty product maps so an all-empty products array is treated as "no products"
+        // (omitted + missing-field warning) rather than sending products: [ {} ].
+        if (product.count > 0) {
+            [products addObject:product];
         }
     }
     return products.count > 0 ? products : nil;

@@ -19,7 +19,7 @@ static Braze *rsBrazeInstance;
         self.config = config;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
-        self.useRecommendedEcommerceEvents = [[config objectForKey:@"useRecommendedEcommerceEvents"] boolValue] ? YES : NO;
+        self.useEcommerceRecommendedEvents = [[config objectForKey:@"useEcommerceRecommendedEvents"] boolValue] ? YES : NO;
 
         BOOL usePlatformSpecificAppIdentifierKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
         NSString *appIdentifierKey = @"";
@@ -269,7 +269,7 @@ static Braze *rsBrazeInstance;
     } else if([message.type isEqualToString:@"track"]) {
         // When enabled, recommended ecommerce events are handled before the legacy paths; other
         // events fall through unchanged.
-        if (self.useRecommendedEcommerceEvents) {
+        if (self.useEcommerceRecommendedEvents) {
             RudderBrazeEcommerceEvent *ecommerceEvent = [RudderBrazeEcommerceUtils resolveEcommerceEvent:message.event];
             if (ecommerceEvent != nil) {
                 NSDictionary *brazeProperties = [RudderBrazeEcommerceUtils buildEcommerceProperties:ecommerceEvent properties:message.properties];

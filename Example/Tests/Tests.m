@@ -201,4 +201,67 @@
     XCTAssertEqualObjects(type[1], @"running");
 }
 
+#pragma mark - malformed products -> metadata (never dropped)
+
+- (void)testMalformedProductsValueFlowsToMetadata {
+    // A non-array `products` must not be silently dropped; it is preserved under metadata.
+    NSDictionary *out = [self buildOrderCompleted:@{
+        @"order_id": @"O-100",
+        @"products": @"not-an-array",
+    }];
+    XCTAssertNil(out[@"products"]);
+    XCTAssertEqualObjects(out[@"metadata"][@"products"], @"not-an-array");
+}
+
+- (void)testMixedProductsArrayFlowsToMetadata {
+    // An array containing a non-object element is treated as malformed (all-or-nothing) and preserved
+    // under metadata rather than partially mapped.
+    NSArray *mixed = @[@{@"product_id": @"P1"}, @"junk"];
+    NSDictionary *props = @{@"order_id": @"O-100", @"products": mixed};
+    NSDictionary *out = [self buildOrderCompleted:props];
+    XCTAssertNil(out[@"products"]);
+    XCTAssertEqualObjects(out[@"metadata"][@"products"], mixed);
+}
+
+#pragma mark - cart_updated products[]
+
+- (void)testCartUpdatedMapsExplicitProductsArray {
+    // An explicit products[] on Product Added is mapped item-by-item (not folded from top-level fields).
+    NSDictionary *props = @{
+        @"cart_id": @"C-1",
+        @"products": @[
+            @{@"product_id": @"P1", @"name": @"Mug"},
+            @{@"product_id": @"P2", @"name": @"Saucer"},
+        ],
+    };
+    NSDictionary *out = [self buildForEvent:@"Product Added" properties:props];
+
+    XCTAssertEqualObjects(out[@"action"], @"add");
+    NSArray *products = out[@"products"];
+    XCTAssertTrue([products isKindOfClass:[NSArray class]]);
+    XCTAssertEqual(products.count, 2u);
+    XCTAssertEqualObjects(products[0][@"product_id"], @"P1");
+    XCTAssertEqualObjects(products[0][@"product_name"], @"Mug");
+    XCTAssertEqualObjects(products[1][@"product_id"], @"P2");
+    // products[] is consumed, so it is not duplicated into metadata.
+    XCTAssertNil(out[@"metadata"][@"products"]);
+}
+
+- (void)testCartUpdatedFallsBackToTopLevelProduct {
+    // Without products[], top-level product fields fold into a single-element products array.
+    NSDictionary *props = @{
+        @"cart_id": @"C-1",
+        @"product_id": @"P1",
+        @"name": @"Mug",
+        @"price": @9.99,
+    };
+    NSDictionary *out = [self buildForEvent:@"Product Removed" properties:props];
+
+    XCTAssertEqualObjects(out[@"action"], @"remove");
+    NSArray *products = out[@"products"];
+    XCTAssertEqual(products.count, 1u);
+    XCTAssertEqualObjects(products[0][@"product_id"], @"P1");
+    XCTAssertEqualObjects(products[0][@"product_name"], @"Mug");
+}
+
 @end
