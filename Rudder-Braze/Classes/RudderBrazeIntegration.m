@@ -7,6 +7,7 @@
 #import "RudderBrazeIntegration.h"
 
 #import "RudderBrazeFactory.h"
+#import "RudderBrazeEcommerceUtils.h"
 @implementation RudderBrazeIntegration
 
 #pragma mark - Initialization
@@ -18,6 +19,7 @@ static Braze *rsBrazeInstance;
         self.config = config;
         self.client = client;
         self.supportDedup = [[config objectForKey:@"supportDedup"] boolValue] ? YES : NO;
+        self.useEcommerceRecommendedEvents = [[config objectForKey:@"useEcommerceRecommendedEvents"] boolValue] ? YES : NO;
 
         BOOL usePlatformSpecificAppIdentifierKeys = [[config objectForKey:@"usePlatformSpecificApiKeys"] boolValue];
         NSString *appIdentifierKey = @"";
@@ -265,6 +267,17 @@ static Braze *rsBrazeInstance;
         }
         self.previousIdentifyElement = message;
     } else if([message.type isEqualToString:@"track"]) {
+        // When enabled, recommended ecommerce events are handled before the legacy paths; other
+        // events fall through unchanged.
+        if (self.useEcommerceRecommendedEvents) {
+            RudderBrazeEcommerceEvent *ecommerceEvent = [RudderBrazeEcommerceUtils resolveEcommerceEvent:message.event];
+            if (ecommerceEvent != nil) {
+                NSDictionary *brazeProperties = [RudderBrazeEcommerceUtils buildEcommerceProperties:ecommerceEvent properties:message.properties];
+                [rsBrazeInstance logCustomEvent:ecommerceEvent.brazeEvent withProperties:brazeProperties];
+                [RSLogger logInfo:@"Braze logCustomEvent: withProperties: for recommended ecommerce event"];
+                return;
+            }
+        }
         if ([message.event isEqualToString:@"Install Attributed"]) {
             if ([message.properties[@"campaign"] isKindOfClass:[NSDictionary class]]) {
                 NSDictionary *attributionDataDictionary = (NSDictionary *)message.properties[@"campaign"];
