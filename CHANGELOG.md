@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 4.5.0 (2026-07-01)
+
+
+### Features
+
+* **ecommerce:** braze recommended ecommerce events in device mode ([#85](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/85)) ([e36fac6](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/e36fac60ac41faba0a88121f0b69e352ade8676f))
+
 ## 4.4.0 (2026-03-18)
 
 
