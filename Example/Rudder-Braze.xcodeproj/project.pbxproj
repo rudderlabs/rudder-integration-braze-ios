@@ -77,7 +77,6 @@
 		EDA2C59B29BAFA9800B7FF42 /* CODEOWNERS */ = {isa = PBXFileReference; lastKnownFileType = text; name = CODEOWNERS; path = ../CODEOWNERS; sourceTree = "<group>"; };
 		EDA2C59C29BAFA9800B7FF42 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = LICENSE.md; path = ../LICENSE.md; sourceTree = "<group>"; };
 		EDA2C59F29BAFAC800B7FF42 /* deploy-cocoapods.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "deploy-cocoapods.yml"; sourceTree = "<group>"; };
-		EDA2C5A029BAFAC800B7FF42 /* notion-pr-sync.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "notion-pr-sync.yml"; sourceTree = "<group>"; };
 		EDA2C5A129BAFAC800B7FF42 /* check-pr-title.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "check-pr-title.yml"; sourceTree = "<group>"; };
 		EDA2C5A229BAFAC800B7FF42 /* publish-new-release.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "publish-new-release.yml"; sourceTree = "<group>"; };
 		EDA2C5A329BAFAC800B7FF42 /* slack-notify.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = "slack-notify.yml"; sourceTree = "<group>"; };
@@ -240,7 +239,6 @@
 			isa = PBXGroup;
 			children = (
 				EDA2C59F29BAFAC800B7FF42 /* deploy-cocoapods.yml */,
-				EDA2C5A029BAFAC800B7FF42 /* notion-pr-sync.yml */,
 				EDA2C5A129BAFAC800B7FF42 /* check-pr-title.yml */,
 				EDA2C5A229BAFAC800B7FF42 /* publish-new-release.yml */,
 				EDA2C5A329BAFAC800B7FF42 /* slack-notify.yml */,
