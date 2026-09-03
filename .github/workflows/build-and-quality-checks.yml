@@ -3,14 +3,25 @@ on:
   pull_request:
     branches: ['master']
     types: ['opened', 'reopened', 'synchronize']
+  push:
+    branches: ['master']
 
 permissions:
   contents: read
 
+env:
+  BUNDLE_FROZEN: "true"
+  DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   build:
     name: Code Quality Checks
-    runs-on: macOS-latest
+    runs-on: macos-latest
+    timeout-minutes: 30
     
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -21,8 +32,116 @@ jobs:
       - name: Checkout source branch
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
-      - name: Install Cocoapods
-        run: gem install cocoapods
+      - name: Install Ruby dependencies
+        run: bundle install
+
+      - name: Show toolchain
+        run: xcodebuild -version
       
       - name: Execute pod lint
-        run: pod lib lint --no-clean --allow-warnings
+        run: bundle exec pod lib lint --no-clean --allow-warnings
+
+  tests:
+    name: iOS unit tests
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout source branch
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        with:
+          persist-credentials: false
+
+      - name: Install Ruby dependencies
+        run: bundle install
+
+      - name: Install example dependencies
+        # Keep external versions locked, but allow the local pod version to follow package.json on release PRs.
+        run: bundle exec pod install --project-directory=Example
+
+      - name: Run unit tests
+        run: |
+          xcodebuild -version
+          mkdir -p build
+          # A clean checkout has no RudderConfig.plist, so the test host does not initialize the SDKs.
+          test ! -f Example/Rudder-Braze/RudderConfig/RudderConfig.plist
+          SIMULATOR_ID="$(xcrun simctl create \
+            'Rudder-Braze CI' \
+            'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro' \
+            'com.apple.CoreSimulator.SimRuntime.iOS-26-2')"
+          trap 'xcrun simctl delete "$SIMULATOR_ID"' EXIT
+          xcodebuild test \
+            -workspace Example/Rudder-Braze.xcworkspace \
+            -scheme Rudder-Braze-Example \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -derivedDataPath build/Tests \
+            -resultBundlePath build/Tests.xcresult \
+            CODE_SIGNING_ALLOWED=NO | tee build/tests.log
+
+      - name: Verify tests executed
+        run: |
+          xcrun xcresulttool get test-results summary \
+            --path build/Tests.xcresult --compact > build/test-summary.json
+          cat build/test-summary.json
+          jq -e '.passedTests > 0 and .failedTests == 0' build/test-summary.json
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ios-test-results
+          path: |
+            build/Tests.xcresult
+            build/tests.log
+            build/test-summary.json
+          retention-days: 14
+
+  spm:
+    name: SPM consumer (${{ matrix.platform }})
+    runs-on: macos-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: simulator
+            destination: generic/platform=iOS Simulator
+          - platform: device
+            destination: generic/platform=iOS
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@fa2e9d605c4eeb9fcad4c99c224cee0c6c7f3594 # v2.16.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout source branch
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+        with:
+          persist-credentials: false
+
+      - name: Build and link SPM consumer
+        working-directory: CI/SPMConsumer
+        env:
+          DESTINATION: ${{ matrix.destination }}
+        run: |
+          xcodebuild -version
+          mkdir -p ../../build
+          cp ../../Package.resolved Package.resolved
+          xcodebuild build \
+            -scheme SPMConsumer \
+            -destination "$DESTINATION" \
+            -derivedDataPath ../../build/SPMConsumer \
+            -disableAutomaticPackageResolution \
+            CODE_SIGNING_ALLOWED=NO | tee ../../build/spm.log
+
+      - name: Upload SPM build log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: spm-${{ matrix.platform }}-build
+          path: build/spm.log
+          retention-days: 14

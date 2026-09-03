@@ -8,7 +8,7 @@ PODS:
   - RSCrashReporter (1.0.1)
   - Rudder (1.31.1):
     - MetricsReporter (= 2.0.0)
-  - Rudder-Braze (4.4.0):
+  - Rudder-Braze (4.5.0):
     - BrazeKit (< 15.0.0, >= 14.0.1)
     - Rudder (~> 1.26)
   - RudderKit (1.4.0)
@@ -18,7 +18,7 @@ DEPENDENCIES:
   - Rudder-Braze (from `../`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - BrazeKit
     - BrazeUI
     - MetricsReporter
@@ -36,9 +36,9 @@ SPEC CHECKSUMS:
   MetricsReporter: 364b98791e868b10e9d512eb50af28d8c11e5cdb
   RSCrashReporter: 6b8376ac729b0289ebe0908553e5f56d8171f313
   Rudder: 352cb3417238fb84cc083826d9a5a7cc91efaa69
-  Rudder-Braze: 2371de6a4fbee74df5a2e9656995675a667062b9
+  Rudder-Braze: 41bd266dcc806703c773c4114a1c88be3f30ff9f
   RudderKit: f272f9872183946452ac94cd7bb2244a71e6ca8f
 
-PODFILE CHECKSUM: 6e5cea33d79e492fb5ac112b1d7d81a6791fbf62
+PODFILE CHECKSUM: e8014bf35af3f3809642b45b516d95a9c3cf3276
 
 COCOAPODS: 1.16.2
