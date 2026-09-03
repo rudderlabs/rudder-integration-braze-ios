@@ -20,7 +20,7 @@ defaults:
 jobs:
   build:
     name: Code Quality Checks
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 30
     
     steps:
@@ -43,7 +43,7 @@ jobs:
 
   tests:
     name: iOS unit tests
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 30
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -102,7 +102,7 @@ jobs:
 
   spm:
     name: SPM consumer (${{ matrix.platform }})
-    runs-on: macos-15
+    runs-on: macos-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false

@@ -2,7 +2,7 @@
 
 `build-and-quality-checks.yml` runs CocoaPods lint, the existing XCTest suite, and
 SPM consumer builds on pull requests and pushes to `master`. CI and CocoaPods
-publication use Xcode 26.2 on `macos-15`. Bundler installs the CocoaPods version
+publication use Xcode 26.2 on `macos-latest`. Bundler installs the CocoaPods version
 locked in `Gemfile.lock`.
 
 ## Unit tests
