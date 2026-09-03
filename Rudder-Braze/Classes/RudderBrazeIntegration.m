@@ -8,11 +8,55 @@
 
 #import "RudderBrazeFactory.h"
 #import "RudderBrazeEcommerceUtils.h"
+
+@protocol RSBrazeUser <NSObject>
+- (void)addAlias:(NSString *)alias label:(NSString *)label;
+- (void)setLastName:(NSString *)lastName;
+- (void)setEmail:(NSString *)email;
+- (void)setFirstName:(NSString *)firstName;
+- (void)setDateOfBirth:(NSDate *)dateOfBirth;
+- (void)setGender:(BRZUserGender *)gender;
+- (void)setPhoneNumber:(NSString *)phoneNumber;
+- (void)setHomeCity:(NSString *)homeCity;
+- (void)setCountry:(NSString *)country;
+- (void)setCustomAttributeWithKey:(NSString *)key stringValue:(NSString *)stringValue;
+- (void)setCustomAttributeWithKey:(NSString *)key dateValue:(NSDate *)dateValue;
+- (void)setCustomAttributeWithKey:(NSString *)key boolValue:(BOOL)boolValue;
+- (void)setCustomAttributeWithKey:(NSString *)key intValue:(NSInteger)intValue;
+- (void)setCustomAttributeWithKey:(NSString *)key doubleValue:(double)doubleValue;
+- (void)setCustomAttributeArrayWithKey:(NSString *)key array:(NSArray<NSString *> *)array;
+- (void)setAttributionData:(BRZUserAttributionData *)attributionData;
+@end
+
+@protocol RSBrazeNotifications <NSObject>
+- (void)registerDeviceToken:(NSData *)deviceToken;
+- (BOOL)handleBackgroundNotificationWithUserInfo:(NSDictionary *)userInfo
+                          fetchCompletionHandler:(void (^)(UIBackgroundFetchResult result))completionHandler;
+- (BOOL)handleUserNotificationWithResponse:(UNNotificationResponse *)response
+                     withCompletionHandler:(void (^)(void))completionHandler;
+@end
+
+@protocol RSBrazeClient <NSObject>
+@property (nonatomic, readonly) id<RSBrazeUser> user;
+@property (nonatomic, readonly) id<RSBrazeNotifications> notifications;
+- (void)changeUser:(NSString *)userId;
+- (void)logCustomEvent:(NSString *)name properties:(NSDictionary *)properties;
+- (void)logPurchase:(NSString *)productId
+           currency:(NSString *)currency
+              price:(double)price
+           quantity:(NSInteger)quantity
+         properties:(NSDictionary *)properties;
+- (void)requestImmediateDataFlush;
+@end
+
+@interface RudderBrazeIntegration ()
+@property (nonatomic, strong) id<RSBrazeClient> brazeInstance;
+- (id<RSBrazeClient>)createBrazeWithConfiguration:(BRZConfiguration *)configuration;
+@end
+
 @implementation RudderBrazeIntegration
 
 #pragma mark - Initialization
-static Braze *rsBrazeInstance;
-
 
 - (instancetype)initWithConfig:(NSDictionary *)config withAnalytics:(nonnull RSClient *)client rudderConfig:(nonnull RSConfig *)rudderConfig {
     if (self = [super init]) {
@@ -101,18 +145,22 @@ static Braze *rsBrazeInstance;
                 break;
         }
 
-        rsBrazeInstance = [[Braze alloc] initWithConfiguration:configuration];
+        self.brazeInstance = [self createBrazeWithConfiguration:configuration];
         [self setUserAlias:client.getAnonymousId];
     }
     return self;
 }
 
+- (id<RSBrazeClient>)createBrazeWithConfiguration:(BRZConfiguration *)configuration {
+    return (id<RSBrazeClient>)[[Braze alloc] initWithConfiguration:configuration];
+}
+
 - (void) setUserAlias:(NSString *)anonymousId {
-    [rsBrazeInstance.user addAlias:anonymousId label:@"rudder_id"];
+    [self.brazeInstance.user addAlias:anonymousId label:@"rudder_id"];
 }
 
 - (id) getUnderlyingInstance {
-    return rsBrazeInstance;
+    return self.brazeInstance;
 }
 
 - (NSString *) getExternalId: (RSMessage *) message {
@@ -140,14 +188,6 @@ static Braze *rsBrazeInstance;
             return;
         }
         
-        if ([message.context.traits[@"lastname"] isKindOfClass:[NSString class]]) {
-            NSString *lastName = [self needUpdate:@"lastname" withMessage:message];
-            if (lastName != nil) {
-                [rsBrazeInstance.user setLastName:lastName];
-                [RSLogger logInfo:@"Identify: Braze user lastname"];
-            }
-        }
-        
         // look for externalIds first
         NSString *currExternalId = [self getExternalId:message];
         
@@ -156,22 +196,32 @@ static Braze *rsBrazeInstance;
 
         if (currExternalId) {
             if (self.prevExternalId == nil || ![currExternalId isEqualToString:self.prevExternalId]) {
-                [rsBrazeInstance changeUser:currExternalId];
+                [self.brazeInstance changeUser:currExternalId];
                 [RSLogger logInfo:@"Identify: Braze changeUser with externalId"];
             }
         } else if (currUserId) {
             if (prevUserId == nil || ![currUserId isEqualToString:prevUserId]) {
-                [rsBrazeInstance changeUser:currUserId];
+                [self.brazeInstance changeUser:currUserId];
                 [RSLogger logInfo:@"Identify: Braze changeUser with userId"];
             }
         }
         // As we are unable to make a deep copy of the externalId in the self.previousIdentifyElement, we need the following workaround:
         self.prevExternalId = currExternalId;
+
+        // Braze 17+ processes changeUser asynchronously. Queue the user switch before all
+        // attribute updates so the updates are applied to the identified user.
+        if ([message.context.traits[@"lastname"] isKindOfClass:[NSString class]]) {
+            NSString *lastName = [self needUpdate:@"lastname" withMessage:message];
+            if (lastName != nil) {
+                [self.brazeInstance.user setLastName:lastName];
+                [RSLogger logInfo:@"Identify: Braze user lastname"];
+            }
+        }
         
         if ([message.context.traits[@"email"] isKindOfClass:[NSString class]]) {
             NSString *email = [self needUpdate:@"email" withMessage:message];
             if (email != nil) {
-                [rsBrazeInstance.user setEmail:email];
+                [self.brazeInstance.user setEmail:email];
                 [RSLogger logInfo:@"Identify: Braze email"];
             }
         }
@@ -179,7 +229,7 @@ static Braze *rsBrazeInstance;
         if ([message.context.traits[@"firstname"] isKindOfClass:[NSString class]]) {
             NSString *firstName = [self needUpdate:@"firstname" withMessage:message];
             if (firstName != nil) {
-                [rsBrazeInstance.user setFirstName:firstName];
+                [self.brazeInstance.user setFirstName:firstName];
                 [RSLogger logInfo: @"Identify: Braze firstname"];
             }
         }
@@ -187,7 +237,7 @@ static Braze *rsBrazeInstance;
         if ([message.context.traits[@"birthday"] isKindOfClass:[NSDate class]]) {
             NSDate *birthday =[self needUpdate:@"birthday" withMessage:message];
             if (birthday != nil) {
-                [rsBrazeInstance.user setDateOfBirth:birthday];
+                [self.brazeInstance.user setDateOfBirth:birthday];
                 [RSLogger logInfo: @"Identify: Braze  date of birth"];
             }
         }
@@ -196,10 +246,10 @@ static Braze *rsBrazeInstance;
             NSString *gender = [self needUpdate:@"gender" withMessage:message];
             if (gender != nil) {
                 if ([gender.lowercaseString isEqualToString:@"m"] || [gender.lowercaseString isEqualToString:@"male"]) {
-                    [rsBrazeInstance.user setGender:BRZUserGender.male];
+                    [self.brazeInstance.user setGender:BRZUserGender.male];
                     [RSLogger logInfo:@"Identify: Braze  gender"];
                 } else if ([gender.lowercaseString isEqualToString:@"f"] || [gender.lowercaseString isEqualToString:@"female"]) {
-                    [rsBrazeInstance.user setGender:BRZUserGender.female];
+                    [self.brazeInstance.user setGender:BRZUserGender.female];
                     [RSLogger logInfo:@"Identify: Braze  gender"];
                 }
             }
@@ -208,7 +258,7 @@ static Braze *rsBrazeInstance;
         if ([message.context.traits[@"phone"] isKindOfClass:[NSString class]]) {
             NSString *phone = [self needUpdate:@"phone" withMessage:message];
             if (phone != nil) {
-                [rsBrazeInstance.user setPhoneNumber:phone];
+                [self.brazeInstance.user setPhoneNumber:phone];
                 [RSLogger logInfo:@"Identify: Braze  phone"];
             }
         }
@@ -217,12 +267,12 @@ static Braze *rsBrazeInstance;
             NSDictionary *address = [self needUpdate:@"address" withMessage:message];
             if (address != nil) {
                 if ([address[@"city"] isKindOfClass:[NSString class]]) {
-                    [rsBrazeInstance.user setHomeCity:address[@"city"]];
+                    [self.brazeInstance.user setHomeCity:address[@"city"]];
                     [RSLogger logInfo:@"Identify: Braze  homecity"];
                 }
                 
                 if ([address[@"country"] isKindOfClass:[NSString class]]) {
-                    [rsBrazeInstance.user setCountry:address[@"country"]];
+                    [self.brazeInstance.user setCountry:address[@"country"]];
                     [RSLogger logInfo:@"Identify: Braze  country"];
                 }
             }
@@ -237,29 +287,29 @@ static Braze *rsBrazeInstance;
                 id traitValue = [self needUpdate:key withMessage:message];
                 if (traitValue != nil) {
                     if ([traitValue isKindOfClass:[NSString class]]) {
-                        [rsBrazeInstance.user setCustomAttributeWithKey:key stringValue:traitValue];
+                        [self.brazeInstance.user setCustomAttributeWithKey:key stringValue:traitValue];
                         [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andStringValue: "];
                     } else if ([traitValue isKindOfClass:[NSDate class]]) {
-                        [rsBrazeInstance.user setCustomAttributeWithKey:key andDateValue:traitValue];
-                        [RSLogger logInfo: @"Braze setCustomAttributeWithKey: andDateValue: "];
+                        [self.brazeInstance.user setCustomAttributeWithKey:key dateValue:traitValue];
+                        [RSLogger logInfo: @"Braze setCustomAttributeWithKey: dateValue: "];
                     } else if ([traitValue isKindOfClass:[NSNumber class]]) {
                         if (strcmp([traitValue objCType], [@(YES) objCType]) == 0) {
-                            [rsBrazeInstance.user setCustomAttributeWithKey:key andBOOLValue:[(NSNumber *)traitValue boolValue]];
-                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andBOOLValue:"];
+                            [self.brazeInstance.user setCustomAttributeWithKey:key boolValue:[(NSNumber *)traitValue boolValue]];
+                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: boolValue:"];
                         } else if (strcmp([traitValue objCType], @encode(short)) == 0 ||
                                    strcmp([traitValue objCType], @encode(int)) == 0 ||
                                    strcmp([traitValue objCType], @encode(long)) == 0) {
-                            [rsBrazeInstance.user setCustomAttributeWithKey:key andIntegerValue:[(NSNumber *)traitValue integerValue]];
-                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andIntegerValue:"];
+                            [self.brazeInstance.user setCustomAttributeWithKey:key intValue:[(NSNumber *)traitValue integerValue]];
+                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: intValue:"];
                         } else if (strcmp([traitValue objCType], @encode(float)) == 0 ||
                                    strcmp([traitValue objCType], @encode(double)) == 0) {
-                            [rsBrazeInstance.user setCustomAttributeWithKey:key andDoubleValue:[(NSNumber *)traitValue doubleValue]];
-                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: andDoubleValue:"];
+                            [self.brazeInstance.user setCustomAttributeWithKey:key doubleValue:[(NSNumber *)traitValue doubleValue]];
+                            [RSLogger logInfo:@"Braze setCustomAttributeWithKey: doubleValue:"];
                         } else {
                             [RSLogger logInfo:@"NSNumber could not be mapped to customAttribute"];
                         }
                     } else if ([traitValue isKindOfClass:[NSArray class]]) {
-                        [rsBrazeInstance.user setCustomAttributeArrayWithKey:key array:traitValue];
+                        [self.brazeInstance.user setCustomAttributeArrayWithKey:key array:traitValue];
                         [RSLogger logInfo:@"Braze setCustomAttributeArrayWithKey: array:"];
                     }
                 }
@@ -273,8 +323,8 @@ static Braze *rsBrazeInstance;
             RudderBrazeEcommerceEvent *ecommerceEvent = [RudderBrazeEcommerceUtils resolveEcommerceEvent:message.event];
             if (ecommerceEvent != nil) {
                 NSDictionary *brazeProperties = [RudderBrazeEcommerceUtils buildEcommerceProperties:ecommerceEvent properties:message.properties];
-                [rsBrazeInstance logCustomEvent:ecommerceEvent.brazeEvent withProperties:brazeProperties];
-                [RSLogger logInfo:@"Braze logCustomEvent: withProperties: for recommended ecommerce event"];
+                [self.brazeInstance logCustomEvent:ecommerceEvent.brazeEvent properties:brazeProperties];
+                [RSLogger logInfo:@"Braze logCustomEvent: properties: for recommended ecommerce event"];
                 return;
             }
         }
@@ -286,25 +336,29 @@ static Braze *rsBrazeInstance;
                                                        campaign:attributionDataDictionary[@"name"]
                                                        adGroup:attributionDataDictionary[@"ad_group"]
                                                        creative:attributionDataDictionary[@"ad_creative"]];
-                [rsBrazeInstance.user setAttributionData:attributionData];
+                [self.brazeInstance.user setAttributionData:attributionData];
                 [RSLogger logInfo:@"Braze setAttributionData:"];
             } else {
-                [rsBrazeInstance logCustomEvent:message.event withProperties:message.properties];
-                [RSLogger logInfo:@"Braze logCustomEvent: withProperties:"];
+                [self.brazeInstance logCustomEvent:message.event properties:message.properties];
+                [RSLogger logInfo:@"Braze logCustomEvent: properties:"];
             }
         } else if ([message.event isEqualToString:@"Order Completed"]) {
             if (message.properties != nil) {
                 NSArray <BrazePurchase *>*brazePurchaseList = [self getPurchaseList:message.properties];
                 if (brazePurchaseList != nil) {
                     for (BrazePurchase *brazePurchase in brazePurchaseList) {
-                        [rsBrazeInstance logPurchase:brazePurchase.productId inCurrency:brazePurchase.currency atPrice:brazePurchase.price withQuantity:brazePurchase.quantity andProperties:brazePurchase.properties];
-                        [RSLogger logInfo:@"Braze logPurchase: inCurrency: atPrice: withQuantity: andProperties:"];
+                        [self.brazeInstance logPurchase:brazePurchase.productId
+                                              currency:brazePurchase.currency
+                                                 price:brazePurchase.price.doubleValue
+                                              quantity:brazePurchase.quantity
+                                            properties:brazePurchase.properties];
+                        [RSLogger logInfo:@"Braze logPurchase: currency: price: quantity: properties:"];
                     }
                 }
             }
         } else {
-            [rsBrazeInstance logCustomEvent:message.event withProperties:message.properties];
-            [RSLogger logInfo:@"Braze logCustomEvent: withProperties:"];
+            [self.brazeInstance logCustomEvent:message.event properties:message.properties];
+            [RSLogger logInfo:@"Braze logCustomEvent: properties:"];
         }
     }
 }
@@ -367,8 +421,8 @@ static Braze *rsBrazeInstance;
 }
 
 - (void)flush {
-    [rsBrazeInstance requestImmediateDataFlush];
-    [RSLogger logInfo: @"Braze flushDataAndProcessRequestQueue]"];
+    [self.brazeInstance requestImmediateDataFlush];
+    [RSLogger logInfo: @"Braze requestImmediateDataFlush"];
 }
 
 - (void)reset {
@@ -437,14 +491,14 @@ static Braze *rsBrazeInstance;
 // - Register the device token with Braze
 
 -(void)didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    [rsBrazeInstance.notifications registerDeviceToken:deviceToken];
+    [self.brazeInstance.notifications registerDeviceToken:deviceToken];
     [RSLogger logInfo:@"Braze registerDeviceToken:"];
 }
 
 // - Add support for silent notification
 
 - (void)didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    BOOL processedByBraze = rsBrazeInstance != nil && [rsBrazeInstance.notifications handleBackgroundNotificationWithUserInfo:userInfo fetchCompletionHandler:completionHandler];
+    BOOL processedByBraze = self.brazeInstance != nil && [self.brazeInstance.notifications handleBackgroundNotificationWithUserInfo:userInfo fetchCompletionHandler:completionHandler];
     if (processedByBraze) {
         return;
     }
@@ -456,7 +510,7 @@ static Braze *rsBrazeInstance;
 // - Add support for push notifications
 
 - (void)didReceiveNotificationResponse:(UNNotificationResponse *)response withCompletionHandler:(void (^)(void))completionHandler {
-    BOOL processedByBraze = rsBrazeInstance != nil && [rsBrazeInstance.notifications handleUserNotificationWithResponse:response withCompletionHandler:completionHandler];
+    BOOL processedByBraze = self.brazeInstance != nil && [self.brazeInstance.notifications handleUserNotificationWithResponse:response withCompletionHandler:completionHandler];
     if (processedByBraze) {
         return;
     }

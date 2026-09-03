@@ -6,7 +6,7 @@ platform :ios, '13.0'
 
 target 'Rudder-Braze_Example' do
   pod 'Rudder-Braze', :path => '../'
-  pod 'BrazeUI' # Used to enable Braze IAM (In-App Message)
+  pod 'BrazeUI', '>= 15.0.0', '< 19.0.0' # Used to enable Braze IAM (In-App Message)
 
   target 'Rudder-Braze_Tests' do
     inherit! :search_paths
