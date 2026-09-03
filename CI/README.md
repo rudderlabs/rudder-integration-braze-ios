@@ -2,7 +2,8 @@
 
 `build-and-quality-checks.yml` runs CocoaPods lint, the existing XCTest suite, and
 SPM consumer builds on pull requests and pushes to `master`. CI and CocoaPods
-publication use Xcode 26.2 on `macos-15` and CocoaPods 1.16.2.
+publication use Xcode 26.2 on `macos-15`. Bundler installs the CocoaPods version
+locked in `Gemfile.lock`.
 
 ## Unit tests
 
@@ -15,7 +16,8 @@ Do not add a local `RudderConfig.plist` to the test host.
 Run from the repository root:
 
 ```sh
-pod _1.16.2_ install --project-directory=Example
+bundle install
+bundle exec pod install --project-directory=Example
 xcodebuild test \
   -workspace Example/Rudder-Braze.xcworkspace \
   -scheme Rudder-Braze-Example \
@@ -29,9 +31,10 @@ Choose an installed simulator when running locally. Use a new result bundle path
 for each run. CI checks the result bundle for passing tests and zero failures,
 and uploads the bundle and logs even when the test command fails.
 
-Use `pod install`, not `pod update`, to retain the locked external dependencies.
-Do not add `--deployment`: release PRs change the local pod version through
-`package.json`, so CocoaPods must be able to refresh that lockfile entry.
+Use `bundle exec pod install`, not `pod update`, to retain the locked external
+dependencies and the repository's CocoaPods toolchain. Do not add `--deployment`:
+release PRs change the local pod version through `package.json`, so CocoaPods must
+be able to refresh that lockfile entry.
 
 ## SPM consumer
 

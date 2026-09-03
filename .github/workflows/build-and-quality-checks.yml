@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 env:
+  BUNDLE_FROZEN: "true"
   DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
 
 defaults:
@@ -31,14 +32,14 @@ jobs:
       - name: Checkout source branch
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
 
-      - name: Install Cocoapods
-        run: gem install cocoapods -v 1.16.2 --no-document
+      - name: Install Ruby dependencies
+        run: bundle install
 
       - name: Show toolchain
         run: xcodebuild -version
       
       - name: Execute pod lint
-        run: pod _1.16.2_ lib lint --no-clean --allow-warnings
+        run: bundle exec pod lib lint --no-clean --allow-warnings
 
   tests:
     name: iOS unit tests
@@ -55,12 +56,12 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install Cocoapods
-        run: gem install cocoapods -v 1.16.2 --no-document
+      - name: Install Ruby dependencies
+        run: bundle install
 
       - name: Install example dependencies
         # Keep external versions locked, but allow the local pod version to follow package.json on release PRs.
-        run: pod _1.16.2_ install --project-directory=Example
+        run: bundle exec pod install --project-directory=Example
 
       - name: Run unit tests
         run: |
