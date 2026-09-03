@@ -29,7 +29,9 @@ xcodebuild test \
 
 Choose an installed simulator when running locally. Use a new result bundle path
 for each run. CI checks the result bundle for passing tests and zero failures,
-and uploads the bundle and logs even when the test command fails.
+and uploads the bundle and logs even when the test command fails. CI creates and
+deletes its own iPhone 17 Pro simulator because hosted runner images do not always
+contain a pre-created device.
 
 Use `bundle exec pod install`, not `pod update`, to retain the locked external
 dependencies and the repository's CocoaPods toolchain. Do not add `--deployment`:

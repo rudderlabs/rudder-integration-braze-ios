@@ -69,10 +69,15 @@ jobs:
           mkdir -p build
           # A clean checkout has no RudderConfig.plist, so the test host does not initialize the SDKs.
           test ! -f Example/Rudder-Braze/RudderConfig/RudderConfig.plist
+          SIMULATOR_ID="$(xcrun simctl create \
+            'Rudder-Braze CI' \
+            'com.apple.CoreSimulator.SimDeviceType.iPhone-17-Pro' \
+            'com.apple.CoreSimulator.SimRuntime.iOS-26-2')"
+          trap 'xcrun simctl delete "$SIMULATOR_ID"' EXIT
           xcodebuild test \
             -workspace Example/Rudder-Braze.xcworkspace \
             -scheme Rudder-Braze-Example \
-            -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.2' \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -derivedDataPath build/Tests \
             -resultBundlePath build/Tests.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee build/tests.log
