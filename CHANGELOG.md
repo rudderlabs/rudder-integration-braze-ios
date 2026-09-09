@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.0.0](https://github.com/rudderlabs/rudder-integration-braze-ios/compare/v4.5.0...v5.0.0) (2026-09-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* Rudder-Braze now requires Braze Swift SDK >= 15.0.0 and < 19.0.0.
+
+### Features
+
+* sdk-5274 support braze swift sdk 15 through 18 ([#91](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/91)) ([f797555](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/f797555256fd83f7d65170de566a0d3facdc583f))
+
+
+### Bug Fixes
+
+* sdk-5213 correct ios release workflows ([#89](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/89)) ([477d924](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/477d9246090801fbeaa089d3fe10bd8e4d58060b))
+
 ## 4.5.0 (2026-07-01)
 
 
