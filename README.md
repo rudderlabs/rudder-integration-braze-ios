@@ -34,6 +34,48 @@ You can also add the SDK via Swift Package Mangaer.
 
 * Finally, click on **Add Package**.
 
+## Migrating to Rudder-Braze 5.x
+
+Rudder-Braze 5.x supports Braze Swift SDK `>= 15.0.0` and `< 19.0.0`. The example project
+and CI use Braze 18.2.0. This is a major Rudder-Braze release because the minimum supported
+Braze version changes from 14.x to 15.0.0.
+
+- CocoaPods: Run `pod update Rudder-Braze BrazeKit BrazeUI` after you change the
+  Rudder-Braze version in your Podfile.
+- Swift Package Manager: Select **File > Packages > Update to Latest Package Versions** in
+  Xcode after you change the Rudder-Braze package version.
+- Use Xcode 26 or later. Braze introduced this requirement in Braze Swift SDK 15.0.0.
+- The minimum iOS version remains iOS 13. For Mac Catalyst, Braze 15.0.0 and later require
+  iOS 16 and macOS 13.
+- Braze 17.0.0 made SDK initialization and `changeUser` non-blocking. Rudder-Braze queues
+  `changeUser` before user attribute updates to preserve identify-event ordering.
+- Braze 18.0.0 renamed the recommended ecommerce `typeIdentifiers` property to `type`.
+  Rudder-Braze sends the `type` property.
+
+### Dismiss a Banner programmatically
+
+Programmatic Banner dismissal requires Braze Swift SDK 15.1.0 or later.
+
+Get the underlying `Braze` instance with `onIntegrationReady`, as shown in the In-App Message
+example below. Keep the `BRZBanner` returned for your placement. Dismiss the Banner on the main
+thread:
+
+```objective-c
+dispatch_async(dispatch_get_main_queue(), ^{
+    [banner dismissUsing:braze];
+});
+```
+
+If a custom Banner placement owns a `BRZBannerContext`, call `[bannerContext dismiss]` instead.
+`BRZBannerUIView` handles its own close action and does not need an additional dismissal call.
+Use its `onDismiss` callback when the application must react to a dismissal:
+
+```objective-c
+bannerView.onDismiss = ^(BRZBannerDismissalEvent *event) {
+    NSLog(@"Braze Banner dismissed: %@", event);
+};
+```
+
 ## Initialize ```RSClient```
 
 Put this code in your ```AppDelegate.m``` file under the method ```didFinishLaunchingWithOptions```

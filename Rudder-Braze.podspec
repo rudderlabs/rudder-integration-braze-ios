@@ -2,7 +2,7 @@ require 'json'
 
 package = JSON.parse(File.read(File.join(__dir__, 'package.json')))
 
-braze_kit = ['>= 14.0.1', '< 15.0.0']
+braze_kit = ['>= 15.0.0', '< 19.0.0']
 rudder_sdk_version = '~> 1.26'
 Pod::Spec.new do |s|
   s.name             = 'Rudder-Braze'
@@ -39,4 +39,3 @@ Rudder is a platform for collecting, storing and routing customer event data to 
   s.dependency 'Rudder', rudder_sdk_version
   s.dependency 'BrazeKit', *Array(braze_kit)
 end
-

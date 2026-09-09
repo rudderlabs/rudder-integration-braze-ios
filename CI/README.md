@@ -8,9 +8,11 @@ locked in `Gemfile.lock`.
 ## Unit tests
 
 The `Rudder-Braze-Example` scheme runs `Example/Tests/Tests.m` in an iOS simulator.
-The tests cover ecommerce property mapping. They do not need Braze credentials,
-a RudderStack source, or live campaigns. A clean checkout contains only
-`SampleRudderConfig.plist`, so the sample app does not initialize either SDK.
+The tests cover ecommerce property mapping and the adapter's calls into Braze. The adapter tests
+use an in-memory Braze test double. They cover initialization, aliasing, identify ordering,
+external IDs, purchase and recommended ecommerce routes, connection modes, and flush behavior.
+They do not need Braze credentials, a RudderStack source, or live campaigns. A clean checkout
+contains only `SampleRudderConfig.plist`, so the sample app does not initialize either SDK.
 Do not add a local `RudderConfig.plist` to the test host.
 
 Run from the repository root:

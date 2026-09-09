@@ -10,6 +10,86 @@
 @import XCTest;
 @import Rudder_Braze;
 
+@interface RSTestClient : NSObject
+@property (nonatomic, copy) NSString *anonymousId;
+- (NSString *)getAnonymousId;
+@end
+
+@implementation RSTestClient
+- (NSString *)getAnonymousId { return self.anonymousId; }
+@end
+
+@interface RSTestBrazeUser : NSObject
+@property (nonatomic, strong) NSMutableArray<NSString *> *calls;
+@end
+
+
+@implementation RSTestBrazeUser
+- (instancetype)init {
+    if (self = [super init]) {
+        _calls = [NSMutableArray array];
+    }
+    return self;
+}
+- (void)addAlias:(NSString *)alias label:(NSString *)label {
+    [self.calls addObject:[NSString stringWithFormat:@"alias:%@:%@", alias, label]];
+}
+- (void)setLastName:(NSString *)lastName { [self.calls addObject:[@"lastName:" stringByAppendingString:lastName]]; }
+- (void)setEmail:(NSString *)email { [self.calls addObject:[@"email:" stringByAppendingString:email]]; }
+@end
+
+@interface RSTestBraze : NSObject
+@property (nonatomic, strong) RSTestBrazeUser *user;
+@property (nonatomic, strong) NSMutableArray<NSString *> *calls;
+@property (nonatomic, copy) NSString *eventName;
+@property (nonatomic, strong) NSDictionary *eventProperties;
+@property (nonatomic, copy) NSString *purchaseProductId;
+@property (nonatomic, copy) NSString *purchaseCurrency;
+@property (nonatomic) double purchasePrice;
+@property (nonatomic) NSInteger purchaseQuantity;
+@property (nonatomic) BOOL flushed;
+@end
+
+@implementation RSTestBraze
+- (instancetype)init {
+    if (self = [super init]) {
+        _calls = [NSMutableArray array];
+        _user = [RSTestBrazeUser new];
+        _user.calls = _calls;
+    }
+    return self;
+}
+- (void)changeUser:(NSString *)userId { [self.calls addObject:[@"changeUser:" stringByAppendingString:userId]]; }
+- (void)logCustomEvent:(NSString *)name properties:(NSDictionary *)properties {
+    self.eventName = name;
+    self.eventProperties = properties;
+}
+- (void)logPurchase:(NSString *)productId
+            currency:(NSString *)currency
+               price:(double)price
+            quantity:(NSInteger)quantity
+          properties:(NSDictionary *)properties {
+    self.purchaseProductId = productId;
+    self.purchaseCurrency = currency;
+    self.purchasePrice = price;
+    self.purchaseQuantity = quantity;
+}
+- (void)requestImmediateDataFlush { self.flushed = YES; }
+@end
+
+@interface RSTestableBrazeIntegration : RudderBrazeIntegration
+@property (nonatomic, strong) RSTestBraze *testBraze;
+@property (nonatomic, strong) BRZConfiguration *capturedConfiguration;
+@end
+
+@implementation RSTestableBrazeIntegration
+- (id)createBrazeWithConfiguration:(BRZConfiguration *)configuration {
+    self.capturedConfiguration = configuration;
+    self.testBraze = [RSTestBraze new];
+    return self.testBraze;
+}
+@end
+
 @interface Tests : XCTestCase
 @end
 
@@ -32,6 +112,141 @@
     XCTAssertTrue([products isKindOfClass:[NSArray class]]);
     XCTAssertGreaterThan(products.count, 0u);
     return products[0];
+}
+
+- (RSTestableBrazeIntegration *)integrationWithMode:(ConnectionMode)mode
+                            recommendedEcommerce:(BOOL)recommendedEcommerce {
+    NSString *modeName = mode == ConnectionModeDevice ? @"device" :
+        (mode == ConnectionModeHybrid ? @"hybrid" : @"cloud");
+    RSTestClient *client = [RSTestClient new];
+    client.anonymousId = @"anonymous-test";
+    RSTestableBrazeIntegration *integration = [[RSTestableBrazeIntegration alloc]
+        initWithConfig:@{
+            @"appKey": @"api-key",
+            @"connectionMode": modeName,
+            @"useEcommerceRecommendedEvents": @(recommendedEcommerce),
+        }
+        withAnalytics:(RSClient *)client
+        rudderConfig:[RSConfig new]];
+    [integration.testBraze.calls removeAllObjects];
+    return integration;
+}
+
+- (RSMessage *)messageWithType:(NSString *)type {
+    RSMessage *message = [RSMessage new];
+    message.type = type;
+    message.context = [[RSContext alloc] initWithDict:@{}];
+    message.context.traits = [NSMutableDictionary dictionary];
+    message.context.externalIds = [NSMutableArray array];
+    return message;
+}
+
+#pragma mark - Braze 18 integration behavior
+
+- (void)testInitializationUsesConfiguredEndpointAndSetsAnonymousAlias {
+    RSTestClient *client = [RSTestClient new];
+    client.anonymousId = @"anonymous-123";
+    RSConfig *rudderConfig = [RSConfig new];
+    RSTestableBrazeIntegration *integration = [[RSTestableBrazeIntegration alloc]
+        initWithConfig:@{
+            @"appKey": @"api-key",
+            @"dataCenter": @"EU-01",
+            @"connectionMode": @"device",
+        }
+        withAnalytics:(RSClient *)client
+        rudderConfig:rudderConfig];
+
+    XCTAssertNotNil(integration);
+    XCTAssertEqualObjects(integration.capturedConfiguration.api.key, @"api-key");
+    XCTAssertEqualObjects(integration.capturedConfiguration.api.endpoint, @"sdk.fra-01.braze.eu");
+    XCTAssertEqualObjects(integration.testBraze.user.calls, (@[@"alias:anonymous-123:rudder_id"]));
+    XCTAssertEqual([integration getUnderlyingInstance], integration.testBraze);
+}
+
+- (void)testIdentifyChangesUserBeforeUpdatingAttributes {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeDevice recommendedEcommerce:NO];
+    RSMessage *message = [self messageWithType:@"identify"];
+    message.userId = @"user-123";
+    message.context.traits = [@{@"lastname": @"Doe", @"email": @"user@example.com"} mutableCopy];
+
+    [integration dump:message];
+
+    XCTAssertEqualObjects(integration.testBraze.calls,
+                          (@[@"changeUser:user-123", @"lastName:Doe", @"email:user@example.com"]));
+}
+
+- (void)testIdentifyPreservesOrderingWhenSwitchingUsers {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeDevice recommendedEcommerce:NO];
+    RSMessage *first = [self messageWithType:@"identify"];
+    first.userId = @"user-1";
+    first.context.traits = [@{@"email": @"first@example.com"} mutableCopy];
+    RSMessage *second = [self messageWithType:@"identify"];
+    second.userId = @"user-2";
+    second.context.traits = [@{@"lastname": @"Second"} mutableCopy];
+
+    [integration dump:first];
+    [integration dump:second];
+
+    XCTAssertEqualObjects(integration.testBraze.calls,
+                          (@[@"changeUser:user-1", @"email:first@example.com",
+                             @"changeUser:user-2", @"lastName:Second"]));
+}
+
+- (void)testExternalIdTakesPriorityOverRudderUserId {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeDevice recommendedEcommerce:NO];
+    RSMessage *message = [self messageWithType:@"identify"];
+    message.userId = @"rudder-user";
+    message.context.externalIds = [@[@{@"type": RSBrazeExternalIdKey, @"id": @"braze-user"}] mutableCopy];
+
+    [integration dump:message];
+
+    XCTAssertEqualObjects(integration.testBraze.calls, (@[@"changeUser:braze-user"]));
+}
+
+- (void)testRecommendedEcommerceFlagUsesBrazeEcommerceEvent {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeDevice recommendedEcommerce:YES];
+    RSMessage *message = [self messageWithType:@"track"];
+    message.event = @"Product Viewed";
+    message.properties = @{@"product_id": @"product-1", @"name": @"Shoe", @"price": @10, @"currency": @"USD"};
+
+    [integration dump:message];
+
+    XCTAssertEqualObjects(integration.testBraze.eventName, @"ecommerce.product_viewed");
+    XCTAssertEqualObjects(integration.testBraze.eventProperties[@"product_id"], @"product-1");
+}
+
+- (void)testLegacyOrderCompletedLogsPurchase {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeDevice recommendedEcommerce:NO];
+    RSMessage *message = [self messageWithType:@"track"];
+    message.event = @"Order Completed";
+    message.properties = @{
+        @"currency": @"EUR",
+        @"products": @[@{@"product_id": @"product-1", @"price": @12.5, @"quantity": @2}],
+    };
+
+    [integration dump:message];
+
+    XCTAssertEqualObjects(integration.testBraze.purchaseProductId, @"product-1");
+    XCTAssertEqualObjects(integration.testBraze.purchaseCurrency, @"EUR");
+    XCTAssertEqualWithAccuracy(integration.testBraze.purchasePrice, 12.5, 0.0001);
+    XCTAssertEqual(integration.testBraze.purchaseQuantity, 2);
+}
+
+- (void)testHybridModeDoesNotSendDeviceModeEvents {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeHybrid recommendedEcommerce:NO];
+    RSMessage *message = [self messageWithType:@"track"];
+    message.event = @"Test Event";
+    message.properties = @{};
+
+    [integration dump:message];
+
+    XCTAssertNil(integration.testBraze.eventName);
+}
+
+- (void)testFlushRequestsImmediateDataFlush {
+    RSTestableBrazeIntegration *integration = [self integrationWithMode:ConnectionModeDevice recommendedEcommerce:NO];
+    [integration flush];
+    XCTAssertTrue(integration.testBraze.flushed);
 }
 
 #pragma mark - resolveEcommerceEvent
