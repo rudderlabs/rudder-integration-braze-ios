@@ -157,3 +157,14 @@ static Braze *braze;
 }
 
 @end
+
+#pragma mark - UIScene lifecycle
+
+@interface RUDDERSceneDelegate : UIResponder <UIWindowSceneDelegate>
+@property (strong, nonatomic) UIWindow *window;
+@end
+
+// Intentionally empty: the storyboard sets up the window; this sample has no
+// deep links or scene logic to forward.
+@implementation RUDDERSceneDelegate
+@end
