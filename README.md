@@ -54,8 +54,9 @@ Braze version changes from 14.x to 15.0.0.
 - Swift Package Manager: Select **File > Packages > Update to Latest Package Versions** in
   Xcode after you change the Rudder-Braze package version.
 - Use Xcode 26 or later. Braze introduced this requirement in Braze Swift SDK 15.0.0.
-- The minimum iOS version remains iOS 13. For Mac Catalyst, Braze 15.0.0 and later require
-  iOS 16 and macOS 13.
+- The minimum iOS version is iOS 15 (required by Xcode 26 and later; apps targeting below
+  iOS 15 stay on the previous Rudder-Braze version via CocoaPods resolution). For
+  Mac Catalyst, Braze 15.0.0 and later require iOS 16 and macOS 13.
 - Braze 17.0.0 made SDK initialization and `changeUser` non-blocking. Rudder-Braze queues
   `changeUser` before user attribute updates to preserve identify-event ordering.
 - Braze 18.0.0 renamed the recommended ecommerce `typeIdentifiers` property to `type`.

@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "SPMConsumer",
-    platforms: [.iOS("13.0")],
+    platforms: [.iOS("15.0")],
     products: [
         // A dynamic product verifies linking as well as compiling the integration.
         .library(name: "SPMConsumer", type: .dynamic, targets: ["SPMConsumer"])

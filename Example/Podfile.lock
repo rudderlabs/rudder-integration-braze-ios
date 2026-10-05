@@ -8,7 +8,7 @@ PODS:
   - RSCrashReporter (1.0.1)
   - Rudder (1.31.1):
     - MetricsReporter (= 2.0.0)
-  - Rudder-Braze (4.5.0):
+  - Rudder-Braze (5.0.0):
     - BrazeKit (< 19.0.0, >= 15.0.0)
     - Rudder (~> 1.26)
   - RudderKit (1.4.0)
@@ -36,9 +36,9 @@ SPEC CHECKSUMS:
   MetricsReporter: 364b98791e868b10e9d512eb50af28d8c11e5cdb
   RSCrashReporter: 6b8376ac729b0289ebe0908553e5f56d8171f313
   Rudder: 352cb3417238fb84cc083826d9a5a7cc91efaa69
-  Rudder-Braze: 76a21468e6478531db7e7e808ca9de1c404e08b6
+  Rudder-Braze: db417f46eb8b9fd0e7f23cdf09a08c8ee87c8440
   RudderKit: f272f9872183946452ac94cd7bb2244a71e6ca8f
 
-PODFILE CHECKSUM: 33e319651c6775aeb5112382b1cfe5886c4e1151
+PODFILE CHECKSUM: 47933e20cf1865f4dfc04e01859ad0fd9bc6cf9e
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
