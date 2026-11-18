@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [5.1.0](https://github.com/rudderlabs/rudder-integration-braze-ios/compare/v5.0.0...v5.1.0) (2026-11-18)
+
+
+### Features
+
+* raise minimum iOS deployment target to 15.0 ([#94](https://github.com/rudderlabs/rudder-integration-braze-ios/issues/94)) ([95468b5](https://github.com/rudderlabs/rudder-integration-braze-ios/commit/95468b5f866164d7c63c1f2ef8784ced74014997))
+
 ## [5.0.0](https://github.com/rudderlabs/rudder-integration-braze-ios/compare/v4.5.0...v5.0.0) (2026-09-09)
 
 
